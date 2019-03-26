@@ -519,10 +519,10 @@ class BugDetailsModal extends PureComponent {
 }
 
 const mapStateToProps = state => ({
-    bug: state.activeBugToModify,
-    usernames: state.usernames,
-    severities: state.severities,
-    labels: state.labels
+    bug: state.bugs.activeBugToModify,
+    usernames: state.bugs.usernames,
+    severities: state.bugs.severities,
+    labels: state.bugs.labels
 });
 
 export default connect(mapStateToProps)(BugDetailsModal);

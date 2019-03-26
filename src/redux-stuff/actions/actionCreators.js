@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL } from './actionTypes'
 import axios from 'axios';
 
 export const setBugs = (bugs) => {
@@ -31,10 +31,9 @@ export const setBugWithId = (modifedBug) => {
 
 export const getAllStatuses = () => {
     return (dispatch) => {
-        fetch('http://localhost:8080/statuses')
-            .then((response) => response.json())
-            .then((response) => {
-                dispatch(setStatuses(response))
+        axios.get('http://localhost:8080/statuses')
+            .then(({ data }) => {
+                dispatch(setStatuses(data))
                 dispatch(getAllBugs())
             });
     }
@@ -42,9 +41,8 @@ export const getAllStatuses = () => {
 
 export const getAllBugs = () => {
     return (dispatch) => {
-        fetch('http://localhost:8080/bugs')
-            .then((response) => response.json())
-            .then((allBugs) => dispatch(setBugs(allBugs)));
+        axios.get('http://localhost:8080/bugs')
+            .then(({ data }) => dispatch(setBugs(data)));
     }
 }
 
@@ -121,9 +119,8 @@ export const setUserNames = (usernames) => {
 
 export const getUserNames = () => {
     return (dispatch) => {
-        fetch("http://localhost:8080/users/namesAndUsernames")
-            .then((response) => response.json())
-            .then((users) => dispatch(setUserNames(users)))
+        axios.get("http://localhost:8080/users/namesAndUsernames")
+            .then(({ data }) => dispatch(setUserNames(data)))
     }
 }
 
@@ -162,9 +159,8 @@ export const startUpdatingBugLabels = (bugId, aNewBugLabels) => {
 
 export const getLabels = () => {
     return (dispatch) => {
-        fetch("http://localhost:8080/labels")
-            .then(response => response.json())
-            .then(responseJSON => dispatch(setLabels(responseJSON)));
+        axios.get("http://localhost:8080/labels")
+            .then(({ data }) => dispatch(setLabels(data)));
     }
 }
 
@@ -312,6 +308,16 @@ export const addAttachmentInfo = (bugId, attachmentInfo) => {
         data: {
             bugId,
             attachmentInfo
+        }
+    }
+}
+
+export const loginSuccessfull = (username, token) => {
+    return {
+        type: LOGIN_SUCCESSFULL,
+        data: {
+            username,
+            token
         }
     }
 }

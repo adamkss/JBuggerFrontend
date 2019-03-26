@@ -7,6 +7,7 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { purple, indigo, blueGrey } from '@material-ui/core/colors';
 import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route, Redirect } from 'react-router-dom'
+import {connect} from 'react-redux';
 
 const theme = createMuiTheme({
   palette: {
@@ -30,25 +31,6 @@ const theme = createMuiTheme({
 class App extends Component {
   constructor(props) {
     super(props);
-    this.loginSuccesful = this.loginSuccesful.bind(this);
-    this.onLogout = this.onLogout.bind(this);
-  }
-
-  state = {
-    // TODO: In production this is initially false
-    loggedIn: true
-  }
-
-  loginSuccesful() {
-    this.setState({
-      loggedIn: true
-    })
-  }
-
-  onLogout() {
-    this.setState({
-      loggedIn: false
-    })
   }
 
   render() {
@@ -60,7 +42,7 @@ class App extends Component {
             <Route exact path='/login' render={(props) => (
               <Login onLogin={this.loginSuccesful} />
             )} />
-            <PrivateRoute path='/' loggedIn={this.state.loggedIn} component={Home} onLogout={this.onLogout} />
+            <PrivateRoute path='/' loggedIn={this.props.loggedIn} component={Home} onLogout={this.onLogout} />
           </Switch>
         </BrowserRouter>
       </MuiThemeProvider>
@@ -88,4 +70,10 @@ const PrivateRoute = ({ component: Component, loggedIn, onLogout, ...rest }) => 
   )} />
 )
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    loggedIn: state.security.loggedIn
+  }
+}
+
+export default connect(mapStateToProps)(App);

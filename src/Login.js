@@ -15,6 +15,9 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import { withRouter } from 'react-router-dom';
 import './Login.css';
 import love from './assets/love.png';
+import axios from 'axios';
+import { connect } from 'react-redux';
+import { loginSuccessfull } from './redux-stuff/actions/actionCreators';
 
 const styles = theme => ({
   paper: {
@@ -40,7 +43,10 @@ const styles = theme => ({
 class Login extends React.Component {
   state = {
     didAppear: false,
-    isLoveNeeded: false
+    isLoveNeeded: false,
+    username: "",
+    password: "",
+    isUsernameOrPasswordIncorrect: false
   }
   componentDidMount = () => {
     this.setState({
@@ -57,6 +63,35 @@ class Login extends React.Component {
         isLoveNeeded: false
       })
     }, 1000)
+  }
+
+  getOnChangeStatePropertyCallback = propertyName => event => {
+    this.setState({
+      [propertyName]: event.target.value
+    })
+  }
+
+  onLoginButtonClicked = () => {
+    axios.post("http://localhost:8080/auth/signin", {
+      username: this.state.username,
+      password: this.state.password
+    })
+      .then(response => {
+        axios.defaults.headers.common = { 'Authorization': `Bearer ${response.data.accessToken}` };
+        axios.interceptors.response.use(null, function (error) {
+          if (error.status === 401) {
+
+          }
+          return Promise.reject(error);
+        });
+        this.props.dispatch(loginSuccessfull(this.state.username, response.data.accessToken));
+        this.props.history.push('/');
+      })
+      .catch(() => {
+        this.setState({
+          isUsernameOrPasswordIncorrect: true
+        })
+      })
   }
 
   render() {
@@ -78,8 +113,14 @@ class Login extends React.Component {
           </Typography>
               <form className={classes.form}>
                 <FormControl margin="normal" fullWidth>
-                  <InputLabel htmlFor="email">Email Address</InputLabel>
-                  <Input id="email" name="email" autoComplete="email" autoFocus />
+                  <InputLabel htmlFor="username">Username</InputLabel>
+                  <Input
+                    id="username"
+                    name="username"
+                    autoComplete="username"
+                    autoFocus
+                    value={this.state.username}
+                    onChange={this.getOnChangeStatePropertyCallback('username')} />
                 </FormControl>
                 <FormControl margin="normal" fullWidth>
                   <InputLabel htmlFor="password">Password</InputLabel>
@@ -88,18 +129,26 @@ class Login extends React.Component {
                     type="password"
                     id="password"
                     autoComplete="current-password"
+                    value={this.state.password}
+                    onChange={this.getOnChangeStatePropertyCallback('password')}
                   />
                 </FormControl>
                 <FormControlLabel
                   control={<Checkbox value="remember" color="primary" />}
                   label="Remember me"
                 />
+                {this.state.isUsernameOrPasswordIncorrect ?
+                  <div className="flexbox-horizontal flexbox-justify-center">
+                    <Typography>Username or password is incorrect.</Typography>
+                  </div>
+                  :
+                  null}
                 <Button
                   fullWidth
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  onClick={() => { this.props.onLogin(); this.props.history.push('/'); }}
+                  onClick={this.onLoginButtonClicked}
                 >
                   Sign in
             </Button>
@@ -128,4 +177,4 @@ Login.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(withRouter(Login));
+export default connect()(withStyles(styles)(withRouter(Login)));

@@ -430,11 +430,11 @@ class BugsOverview extends Component {
 }
 
 const mapStateToProps = state => ({
-  statuses: state.statuses,
-  bugs: state.allBugs,
-  bugsByStatus: state.bugsByStatus,
-  waitingForBugUpdate: state.waitingForBugUpdate,
-  activeBugToModifyID: state.activeBugToModifyID
+  statuses: state.bugs.statuses,
+  bugs: state.bugs.allBugs,
+  bugsByStatus: state.bugs.bugsByStatus,
+  waitingForBugUpdate: state.bugs.waitingForBugUpdate,
+  activeBugToModifyID: state.bugs.activeBugToModifyID
 });
 
 export default withStyles(styles)(connect(mapStateToProps)(BugsOverview));

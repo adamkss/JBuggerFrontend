@@ -86,7 +86,7 @@ class BugShortOverview extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    currentlySelectedBugID: state.activeBugToModifyID
+    currentlySelectedBugID: state.bugs.activeBugToModifyID
   }
 }
 export default connect(mapStateToProps)(withRouter(BugShortOverview));
