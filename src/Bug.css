@@ -1,0 +1,8 @@
+.bugOutsideContainer{
+  background-color:rgb(245, 245, 245);
+  width:300px;
+  height:300px;
+  border-radius: 5px;
+  box-shadow: 3px 3px 10px rgb(172, 171, 171, 0.8);
+  margin-left: 10px;
+}

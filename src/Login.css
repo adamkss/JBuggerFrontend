@@ -1,0 +1,84 @@
+.login-wrapper{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(230deg,#a24bcf,#4b79cf,#4bc5cf);
+    position: relative;
+}
+
+.login__login-box{
+    width: 400px;
+    height: 500px;
+    transition: transform 0.7s, opacity 0.7s;
+}
+
+.login__login-box-initial{
+    transform: translateY(-50px);
+    opacity: 0.5;
+}
+
+.login__login-box-normal{
+    transform: none;
+    opacity: 1;
+}
+
+.login__footer{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 3px;
+}
+
+.login__love-wrapper{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.login__footer__motto{
+    color: white;
+    font-style: normal;
+    font-weight: 100;
+    transition: opacity 2s 3s;
+    cursor: pointer;
+}
+
+.footer__motto-initial-state{
+    opacity: 0;
+}
+
+.footer__motto-end-state{
+    opacity: 0.7;
+}
+
+@keyframes MoveHeart { 
+    0%{
+        transform: translateY(0);
+        opacity:0;
+    }
+    50%{
+        transform: translateY(-20px);
+        opacity:1;
+        
+    }
+    100%{
+        transform: translateY(-40px);
+        opacity:0;
+    }
+}
+
+.login__love{
+    width: 40px;
+    height: 40px;
+    animation: MoveHeart 1s;
+    transform: translateY(-40px);
+    opacity: 0;
+}

@@ -1,0 +1,10 @@
+.pie-chart{
+    width: 250px;
+    cursor: pointer;
+}
+
+.color-indicator{
+    width:35px;
+    height:25px;
+    border-radius:10px;
+}

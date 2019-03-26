@@ -1,0 +1,46 @@
+{
+  "name": "jbugger",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@date-io/date-fns": "^1.1.0",
+    "@material-ui/core": "^3.3.1",
+    "@material-ui/icons": "^3.0.1",
+    "axios": "^0.18.0",
+    "classnames": "^2.2.6",
+    "d3-array": "^2.0.3",
+    "d3-scale": "^2.2.2",
+    "d3-selection": "^1.4.0",
+    "d3-shape": "^1.3.4",
+    "d3-svg-legend": "^2.25.6",
+    "date-fns": "^1.30.1",
+    "material-ui-pickers": "^2.2.1",
+    "react": "^16.6.0",
+    "react-beautiful-dnd": "^10.0.4",
+    "react-dom": "^16.6.0",
+    "react-redux": "^6.0.0",
+    "react-router-dom": "^4.3.1",
+    "react-scripts": "2.0.5",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0",
+    "styled-components": "^4.1.3",
+    "textarea-caret": "^3.1.0",
+    "textarea-caret-position": "^0.1.1",
+    "typeface-roboto": "0.0.54"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

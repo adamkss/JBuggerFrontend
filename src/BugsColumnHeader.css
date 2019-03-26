@@ -1,0 +1,21 @@
+.header-parent{
+    min-height: 52px;
+    display: flex;
+    flex-direction: column;
+}
+
+.headerGrid{
+    width: 350px;
+}
+
+.colorAsd{
+    width:400px;
+    height:3px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: brown;
+}
+
+.left-subtitle{
+    padding-left: 12px;
+}

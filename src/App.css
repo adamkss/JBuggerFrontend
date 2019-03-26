@@ -1,0 +1,151 @@
+.flex-grow{
+    flex-grow: 1;
+}
+
+
+.NEW-bug-status-color{
+    background-color: #607d8b;
+}
+
+.IN_PROGRESS-bug-status-color{
+    background-color: #2196f3;
+}
+
+.REJECTED-bug-status-color{
+    background-color: #4caf50;
+}
+
+.CLOSED-bug-status-color{
+    background-color: #9c27b0;
+}
+
+.FIXED-bug-status-color{
+    background-color: #c51162;
+}
+
+.INFO_NEEDED-bug-status-color{
+    background-color: #ff8f00;
+}
+
+.text-field{
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+    width: 200px;
+}
+
+.flexbox-vertical-centered{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vertical-scroll-container:hover{
+    overflow-y: auto;
+}
+
+/* TODO: Hide when not on hover */
+
+.vertical-scroll-container{
+    overflow-y: auto;
+}
+
+.full-height{
+    height: 100%;
+}
+
+.full-width{
+    width: 100% !important; 
+}
+
+.padded-top{
+    padding-top: 10px;
+}
+
+.flexbox-horizontal{
+    display:flex;
+    flex-direction: row;
+}
+
+.flexbox-vertical{
+    display:flex;
+    flex-direction: column;
+}
+
+.flexbox-align-items-center{
+    align-items: center;
+}
+
+.flexbox-justify-center{
+    justify-content: center;
+}
+
+.justify-flex-end{
+    justify-content: flex-end;
+}
+
+.flex-wrap{
+    flex-wrap: wrap;
+}
+
+.with-margin-top{
+    margin-top: 12px !important;
+}
+
+.small-margin-top{
+    margin-top: 6px;
+}
+
+.small-margin-bottom{
+    margin-top: 6px;
+}
+
+.with-margin-left{
+    margin-left: 12px !important;
+}
+
+.with-big-margin-left{
+    margin-left: 35px !important;
+}
+
+.small-padding-all-over{
+    padding: 3px !important;
+}
+
+.progress-circular{
+    color: '#6798e5';
+    animation-duration: '550ms';
+    position: 'absolute';
+    left: 0;
+}
+
+.white-space-pre{
+    white-space: pre-line; 
+}
+
+.position-relative{
+    position: relative;
+}
+
+.opacity-invisible{
+    opacity: 0;
+}
+
+.opacity-visible{
+    opacity: 0.8;
+}
+
+.color-white{
+    color: white !important;
+}
+
+.color-gray{
+    color: #aaaaaa;
+}
+
+.small-margin-right{
+    margin-right: 3px;
+}
+
+.with-margin-bottom{
+    margin-bottom: 8px;
+}

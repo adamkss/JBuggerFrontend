@@ -1,0 +1,26 @@
+.bugs-column{
+    background-color: #eeeeee;
+    border-radius: 5px;
+    height: calc(100% - 16px);
+    width:340px;
+    box-shadow: 2px 0px 4px 0px rgba(182, 182, 182, 0.75);
+    margin-left: 16px;
+    margin-bottom: 16px;
+}
+
+.divider {
+    margin-bottom: 10px;
+}
+
+.possible-drop-target{
+    opacity: 0.4;
+}
+
+.possible-drop-target-hover-over{
+    opacity: 1;
+}
+
+.border-radius-bottom{
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}

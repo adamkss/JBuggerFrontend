@@ -1,0 +1,28 @@
+.sidebar__edit-button{
+    font-weight: 300;
+}
+
+.sidebar__edit-button:hover{
+    cursor: pointer;
+    text-decoration-line: underline;
+}
+
+.sidebar__detail-info{
+    color: rgba(64, 64, 64, 0.90) !important;
+    font-size: 0.855rem !important;
+    font-weight: 375 !important;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif !important;
+    margin-top: 6px !important;
+}
+
+.slight-padding-right{
+    padding-right: 6px;
+}
+
+.form-control{
+    min-width: 120px;
+}
+
+.small-custom-padding-left-right{
+    padding: 3px !important;
+}

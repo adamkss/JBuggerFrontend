@@ -1,0 +1,11 @@
+.settings-container{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.settings-container__labels-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
