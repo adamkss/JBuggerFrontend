@@ -1,4 +1,4 @@
-import { LOGIN_SUCCESSFULL } from "../actions/actionTypes";
+import { LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA } from "../actions/actionTypes";
 
 const initialState = {
     loggedIn: false,
@@ -14,6 +14,13 @@ const securityReducer = (state = {}, action) => {
                 loggedIn: true,
                 username: action.data.username,
                 token: action.data.token
+            }
+        case CLEAR_LOGIN_DATA:
+            return {
+                ...state,
+                loggedIn: false,
+                username: null,
+                token: null
             }
         default: return state;
     }
