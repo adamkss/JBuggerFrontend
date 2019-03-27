@@ -17,7 +17,7 @@ import './Login.css';
 import love from './assets/love.png';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { loginSuccessfull } from './redux-stuff/actions/actionCreators';
+import { loginSuccessfull, tryLogin } from './redux-stuff/actions/actionCreators';
 
 const styles = theme => ({
   paper: {
@@ -48,6 +48,7 @@ class Login extends React.Component {
     password: "",
     isUsernameOrPasswordIncorrect: false
   }
+  
   componentDidMount = () => {
     this.setState({
       didAppear: true
@@ -72,26 +73,15 @@ class Login extends React.Component {
   }
 
   onLoginButtonClicked = () => {
-    axios.post("http://localhost:8080/auth/signin", {
-      username: this.state.username,
-      password: this.state.password
-    })
-      .then(response => {
-        axios.defaults.headers.common = { 'Authorization': `Bearer ${response.data.accessToken}` };
-        axios.interceptors.response.use(null, function (error) {
-          if (error.status === 401) {
-
-          }
-          return Promise.reject(error);
-        });
-        this.props.dispatch(loginSuccessfull(this.state.username, response.data.accessToken));
-        this.props.history.push('/');
-      })
-      .catch(() => {
-        this.setState({
-          isUsernameOrPasswordIncorrect: true
-        })
-      })
+    this.props.dispatch(
+      tryLogin(
+        this.state.username,
+        this.state.password,
+        () => {
+          this.props.history.push('/');
+        }
+      )
+    )
   }
 
   render() {
@@ -137,7 +127,7 @@ class Login extends React.Component {
                   control={<Checkbox value="remember" color="primary" />}
                   label="Remember me"
                 />
-                {this.state.isUsernameOrPasswordIncorrect ?
+                {this.props.isUsernameOrPasswordIncorrect ?
                   <div className="flexbox-horizontal flexbox-justify-center">
                     <Typography>Username or password is incorrect.</Typography>
                   </div>
@@ -177,4 +167,10 @@ Login.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(withRouter(connect()(Login)));
+const mapStateToProps = state => {
+  return {
+    isUsernameOrPasswordIncorrect: state.security.isUsernameOrPasswordIncorrect
+  }
+}
+
+export default withStyles(styles)(withRouter(connect(mapStateToProps)(Login)));

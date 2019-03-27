@@ -7,25 +7,53 @@ import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import bugReducer from './redux-stuff/reducers/bugReducer';
 import securityReducer from './redux-stuff/reducers/securityReducer';
-import JWTTokenMiddleware from './redux-stuff/middleware/JWTTokenMiddleware';
+import { BrowserRouter } from 'react-router-dom';
 
 import thunk from 'redux-thunk';
+import axios from 'axios';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const initialStateSecurityReducer = {
+    loggedIn: false,
+    username: null,
+    token: null,
+    isUsernameOrPasswordIncorrect: false
+}
+
+const existingToken = localStorage.getItem('token');
+
+if (existingToken) {
+    initialStateSecurityReducer.loggedIn = true;
+    initialStateSecurityReducer.token = existingToken;
+    axios.defaults.headers.common = { 'Authorization': `Bearer ${existingToken}` };
+    axios.interceptors.response.use(null, function (error) {
+        if (error.response.status === 401) {
+            alert('Expired')
+        }
+        return Promise.reject(error);
+    });
+}
+
 
 const rootReducer = combineReducers({
     bugs: bugReducer,
     security: securityReducer
 });
 
-const store = createStore(rootReducer, composeEnhancers(
-    applyMiddleware(thunk, JWTTokenMiddleware)
-));
-
+const store = createStore(
+    rootReducer,
+    {
+        security: initialStateSecurityReducer
+    },
+    composeEnhancers(applyMiddleware(thunk))
+);
 
 ReactDOM.render(
     <Provider store={store}>
-        <App />
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     </Provider>
     , document.getElementById('root'));
 

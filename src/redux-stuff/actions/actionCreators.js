@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED } from './actionTypes'
 import axios from 'axios';
 
 export const setBugs = (bugs) => {
@@ -48,15 +48,8 @@ export const getAllBugs = () => {
 
 export const createBug = (newBugWithStatus) => {
     return (dispatch) => {
-        fetch('http://localhost:8080/bugs', {
-            method: "POST",
-            body: JSON.stringify(newBugWithStatus),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then((response) => response.json())
-            .then((createdBug) => dispatch(addBug(createdBug)));
+        axios.post('http://localhost:8080/bugs', newBugWithStatus)
+            .then(({ data: createdBug }) => dispatch(addBug(createdBug)));
     }
 }
 
@@ -173,18 +166,13 @@ export const setLabels = (labels) => {
 
 export const startCreatingNewSwimLane = (swimLane) => {
     return (dispatch) => {
-        fetch('http://localhost:8080/statuses', {
-            method: "POST",
-            body: JSON.stringify({
+        axios.post('http://localhost:8080/statuses',
+            {
                 statusName: swimLane.swimLaneName,
                 statusColor: swimLane.swimLaneColor
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then((response) => response.json())
-            .then((newSwimLane) => dispatch(createNewSwimlane(newSwimLane)));
+            }
+        )
+            .then(({ data: newSwimLane }) => dispatch(createNewSwimlane(newSwimLane)));
     }
 }
 
@@ -262,18 +250,11 @@ export const updateSwimlaneColor = (swimlaneName, newSwimlaneColor) => {
 
 export const startCreatingNewLabel = (newLabelName, newLabelColor) => {
     return (dispatch) => {
-        fetch('http://localhost:8080/labels', {
-            method: "POST",
-            body: JSON.stringify({
-                labelName: newLabelName,
-                labelColor: newLabelColor
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        axios.post('http://localhost:8080/labels', {
+            labelName: newLabelName,
+            labelColor: newLabelColor
         })
-            .then((response) => response.json())
-            .then((newLabel) => dispatch(createNewLabel(newLabel)));
+            .then(({ data: newLabel }) => dispatch(createNewLabel(newLabel)));
     }
 }
 
@@ -312,6 +293,61 @@ export const addAttachmentInfo = (bugId, attachmentInfo) => {
     }
 }
 
+const getTokenExpiredCallback = dispatch => () => {
+    dispatch(tokenExpired());
+}
+
+const setupLocalStorageAndAxios = (token, tokenExpiredHandler) => {
+    localStorage.setItem('token', token);
+    axios.defaults.headers.common = { 'Authorization': `Bearer ${token}` };
+    axios.interceptors.response.use(null, function (error) {
+        if (error.status === 401) {
+            tokenExpiredHandler();
+        }
+        return Promise.reject(error);
+    });
+}
+
+export const tryInitializeSecurity = () => {
+    return dispatch => {
+        const existingToken = localStorage.getItem('token');
+        if (existingToken) {
+            axios.get("http://localhost:8080/users/user/current", {
+                headers: {
+                    "Authorization": `Bearer ${existingToken}`
+                }
+            }).then(({ data: loggedInUser }) => {
+                setupLocalStorageAndAxios(
+                    existingToken,
+                    getTokenExpiredCallback(dispatch)
+                );
+                dispatch(loginSuccessfull(loggedInUser.username, existingToken))
+            }).catch(() => {
+                //empty localstorage and redirect to login
+            })
+        } else {
+            //redirect to login
+        }
+    }
+}
+
+export const tryLogin = (username, password, successCallback) => {
+    return dispatch => {
+        axios.post("http://localhost:8080/auth/signin", {
+            username,
+            password
+        })
+            .then(response => {
+                setupLocalStorageAndAxios(response.data.accessToken, getTokenExpiredCallback(dispatch));
+                dispatch(loginSuccessfull(username, response.data.accessToken));
+                successCallback();
+            })
+            .catch(() => {
+                dispatch(loginFailed())
+            })
+    }
+}
+
 export const loginSuccessfull = (username, token) => {
     return {
         type: LOGIN_SUCCESSFULL,
@@ -322,8 +358,14 @@ export const loginSuccessfull = (username, token) => {
     }
 }
 
-export const clearLoginData = () => {
+export const loginFailed = () => {
     return {
-        type: CLEAR_LOGIN_DATA
+        type: LOGIN_FAILED
+    }
+}
+
+export const tokenExpired = () => {
+    return {
+        type: TOKEN_EXPIRED
     }
 }
