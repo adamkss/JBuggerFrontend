@@ -334,7 +334,7 @@ export const tryInitializeSecurity = () => {
     }
 }
 
-export const tryLogin = (isRememberMeNeeded, username, password, successCallback) => {
+export const tryLogin = (isRememberMeNeeded, username, password) => {
     return dispatch => {
         axios.post("http://localhost:8080/auth/signin", {
             username,
@@ -347,8 +347,6 @@ export const tryLogin = (isRememberMeNeeded, username, password, successCallback
                 setupAxios(response.data.accessToken, getTokenExpiredCallback(dispatch));
 
                 dispatch(loginSuccessfull(username, response.data.accessToken));
-                
-                successCallback();
             })
             .catch(() => {
                 dispatch(loginFailed())

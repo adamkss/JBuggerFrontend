@@ -77,10 +77,7 @@ class Login extends React.Component {
       tryLogin(
         this.state.isKeepMeLoggedInChecked,
         this.state.username,
-        this.state.password,
-        () => {
-          this.props.history.push('/');
-        }
+        this.state.password
       )
     )
   }
