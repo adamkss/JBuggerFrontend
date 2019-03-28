@@ -2,8 +2,8 @@ import React, { PureComponent } from 'react'
 import BarChart from './BarChart';
 import PieChart from './PieChart/index';
 import styled from 'styled-components';
-import {Typography} from '@material-ui/core';
-
+import { Typography } from '@material-ui/core';
+import axios from 'axios';
 import './Statistics.css';
 
 import ProjectSettingsSection from './ProjectSettingsSection';
@@ -22,9 +22,8 @@ export default class Statistics extends PureComponent {
     }
 
     componentDidMount() {
-        fetch("http://localhost:8080/statistics/byLabels")
-            .then((response) => response.json())
-            .then(data => {
+        axios.get("http://localhost:8080/statistics/byLabels")
+            .then(({ data }) => {
                 this.setState({
                     statisticsByLabels: data
                 })

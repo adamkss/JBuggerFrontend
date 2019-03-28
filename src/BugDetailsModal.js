@@ -11,6 +11,7 @@ import Comments from './Comments';
 import { downloadFile } from './utils/DownloadHelper';
 import { uploadFile } from './utils/UploadHelper';
 import CreateCommentDialog from './popovers/CreateCommentDialog';
+import axios from 'axios';
 
 class BugDetailsModal extends PureComponent {
     state = {
@@ -80,9 +81,8 @@ class BugDetailsModal extends PureComponent {
     }
 
     getCommentsForCurrentBug = () => {
-        fetch(`http://localhost:8080/comments/bug/${this.props.bug.id}`)
-            .then(resp => resp.json())
-            .then(comments => {
+        axios.get(`http://localhost:8080/comments/bug/${this.props.bug.id}`)
+            .then(({ data: comments }) => {
                 this.setState({
                     comments
                 })
@@ -246,16 +246,10 @@ class BugDetailsModal extends PureComponent {
     }
 
     onCreateComment = (newCommentMessage) => {
-        fetch(`http://localhost:8080/comments/bug/${this.props.bug.id}`, {
-            method: "POST",
-            body: JSON.stringify({
-                commentText: newCommentMessage
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        axios.post(`http://localhost:8080/comments/bug/${this.props.bug.id}`, {
+            commentText: newCommentMessage
         })
-            .then((response) => {
+            .then(() => {
                 this.getCommentsForCurrentBug();
                 this.setState({
                     isCreateCommentDialogOpen: false
@@ -519,10 +513,10 @@ class BugDetailsModal extends PureComponent {
 }
 
 const mapStateToProps = state => ({
-    bug: state.activeBugToModify,
-    usernames: state.usernames,
-    severities: state.severities,
-    labels: state.labels
+    bug: state.bugs.activeBugToModify,
+    usernames: state.bugs.usernames,
+    severities: state.bugs.severities,
+    labels: state.bugs.labels
 });
 
 export default connect(mapStateToProps)(BugDetailsModal);

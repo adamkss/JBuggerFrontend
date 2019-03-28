@@ -349,11 +349,11 @@ class CreateBugBigDialog extends Component {
 }
 
 const mapStateToProps = state => ({
-  severities: state.severities,
-  statuses: state.statuses,
-  users: state.usernames,
-  labels: state.labels,
-  statuses: state.statuses
+  severities: state.bugs.severities,
+  statuses: state.bugs.statuses,
+  users: state.bugs.usernames,
+  labels: state.bugs.labels,
+  statuses: state.bugs.statuses
 })
 
 export default connect(mapStateToProps)(CreateBugBigDialog);

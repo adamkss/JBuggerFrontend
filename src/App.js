@@ -7,6 +7,9 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { purple, indigo, blueGrey } from '@material-ui/core/colors';
 import { BrowserRouter } from 'react-router-dom';
 import { Switch, Route, Redirect } from 'react-router-dom'
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { tryInitializeSecurity } from './redux-stuff/actions/actionCreators';
 
 const theme = createMuiTheme({
   palette: {
@@ -16,12 +19,12 @@ const theme = createMuiTheme({
       "New": purple[300],
       "In progress": purple[400],
       "Fixed": purple[500],
-      "Closed": indigo[300],  
+      "Closed": indigo[300],
       "Rejected": indigo[400],
       "Info needed": indigo[500]
     }
   },
-  
+
   grow: {
     flexGrow: 1
   }
@@ -30,39 +33,27 @@ const theme = createMuiTheme({
 class App extends Component {
   constructor(props) {
     super(props);
-    this.loginSuccesful = this.loginSuccesful.bind(this);
-    this.onLogout = this.onLogout.bind(this);
   }
 
-  state = {
-    // TODO: In production this is initially false
-    loggedIn: true
-  }
-
-  loginSuccesful() {
-    this.setState({
-      loggedIn: true
-    })
-  }
-
-  onLogout() {
-    this.setState({
-      loggedIn: false
-    })
+  componentDidMount = () => {
+    this.props.dispatch(tryInitializeSecurity())
   }
 
   render() {
     const { location } = this.props;
     return (
       <MuiThemeProvider theme={theme}>
-        <BrowserRouter>
-          <Switch>
-            <Route exact path='/login' render={(props) => (
-              <Login onLogin={this.loginSuccesful} />
-            )} />
-            <PrivateRoute path='/' loggedIn={this.state.loggedIn} component={Home} onLogout={this.onLogout} />
-          </Switch>
-        </BrowserRouter>
+        <Switch>
+          <Route exact path='/login' render={(props) => {
+            if (this.props.loggedIn)
+              return <Redirect to="/" />
+            else
+              return <Login onLogin={this.loginSuccesful} />
+          }
+          } />
+          <PrivateRoute component={Home} path='/' loggedIn={this.props.loggedIn} />
+        </Switch>
+
       </MuiThemeProvider>
     );
   }
@@ -88,4 +79,10 @@ const PrivateRoute = ({ component: Component, loggedIn, onLogout, ...rest }) => 
   )} />
 )
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    loggedIn: state.security.loggedIn
+  }
+}
+
+export default withRouter(connect(mapStateToProps)(App));

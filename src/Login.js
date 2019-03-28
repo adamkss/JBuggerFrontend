@@ -15,6 +15,9 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import { withRouter } from 'react-router-dom';
 import './Login.css';
 import love from './assets/love.png';
+import axios from 'axios';
+import { connect } from 'react-redux';
+import { loginSuccessfull, tryLogin } from './redux-stuff/actions/actionCreators';
 
 const styles = theme => ({
   paper: {
@@ -40,8 +43,12 @@ const styles = theme => ({
 class Login extends React.Component {
   state = {
     didAppear: false,
-    isLoveNeeded: false
+    isLoveNeeded: false,
+    username: "",
+    password: "",
+    isKeepMeLoggedInChecked: true
   }
+
   componentDidMount = () => {
     this.setState({
       didAppear: true
@@ -57,6 +64,28 @@ class Login extends React.Component {
         isLoveNeeded: false
       })
     }, 1000)
+  }
+
+  getOnChangeStatePropertyCallback = propertyName => event => {
+    this.setState({
+      [propertyName]: event.target.value
+    })
+  }
+
+  onLoginButtonClicked = () => {
+    this.props.dispatch(
+      tryLogin(
+        this.state.isKeepMeLoggedInChecked,
+        this.state.username,
+        this.state.password
+      )
+    )
+  }
+
+  onKeepMeLoggedInChange = (oEvent, newValue) => {
+    this.setState({
+      isKeepMeLoggedInChecked: newValue
+    })
   }
 
   render() {
@@ -78,8 +107,14 @@ class Login extends React.Component {
           </Typography>
               <form className={classes.form}>
                 <FormControl margin="normal" fullWidth>
-                  <InputLabel htmlFor="email">Email Address</InputLabel>
-                  <Input id="email" name="email" autoComplete="email" autoFocus />
+                  <InputLabel htmlFor="username">Username</InputLabel>
+                  <Input
+                    id="username"
+                    name="username"
+                    autoComplete="username"
+                    autoFocus
+                    value={this.state.username}
+                    onChange={this.getOnChangeStatePropertyCallback('username')} />
                 </FormControl>
                 <FormControl margin="normal" fullWidth>
                   <InputLabel htmlFor="password">Password</InputLabel>
@@ -88,18 +123,38 @@ class Login extends React.Component {
                     type="password"
                     id="password"
                     autoComplete="current-password"
+                    value={this.state.password}
+                    onChange={this.getOnChangeStatePropertyCallback('password')}
                   />
                 </FormControl>
                 <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
+                  control={
+                    <Checkbox
+                      checked={this.state.isKeepMeLoggedInChecked}
+                      onChange={this.onKeepMeLoggedInChange}
+                      value="remember"
+                      color="primary" />
+                  }
                   label="Remember me"
                 />
+                {this.props.isUsernameOrPasswordIncorrect ?
+                  <div className="flexbox-horizontal flexbox-justify-center">
+                    <Typography>Username or password is incorrect.</Typography>
+                  </div>
+                  :
+                  null}
+                {this.props.isTokenExpired ?
+                  <div className="flexbox-horizontal flexbox-justify-center">
+                    <Typography>Your token has expired. Please login again.</Typography>
+                  </div>
+                  :
+                  null}
                 <Button
                   fullWidth
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  onClick={() => { this.props.onLogin(); this.props.history.push('/'); }}
+                  onClick={this.onLoginButtonClicked}
                 >
                   Sign in
             </Button>
@@ -128,4 +183,11 @@ Login.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(withRouter(Login));
+const mapStateToProps = state => {
+  return {
+    isUsernameOrPasswordIncorrect: state.security.isUsernameOrPasswordIncorrect,
+    isTokenExpired: state.security.isTokenExpired
+  }
+}
+
+export default withStyles(styles)(withRouter(connect(mapStateToProps)(Login)));

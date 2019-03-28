@@ -7,6 +7,7 @@ import Grid from '@material-ui/core/Grid';
 import 'typeface-roboto';
 import Button from '@material-ui/core/Button';
 import { withRouter } from 'react-router-dom';
+import axios from 'axios';
 
 const styles = theme => ({
   container: {
@@ -25,9 +26,8 @@ class BugDetail extends Component {
   componentDidMount() {
     let sBugId = this.props.match.params.bugId;
 
-    fetch(`http://localhost:8080/bugs/bug/${sBugId}`)
-      .then((response) => response.json())
-      .then((data) => this.setState((oldState) => ({
+    axios.get(`http://localhost:8080/bugs/bug/${sBugId}`)
+      .then(({data}) => this.setState((oldState) => ({
         bug: data
       })))
   }

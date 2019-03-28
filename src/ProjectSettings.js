@@ -65,7 +65,7 @@ class ProjectSettings extends Component {
 }
 
 const mapStateToProps = state => ({
-    labels: state.labels
+    labels: state.bugs.labels
 });
 
 export default connect(mapStateToProps)(ProjectSettings);

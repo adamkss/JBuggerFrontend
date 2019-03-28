@@ -1,5 +1,6 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED } from './actionTypes'
 import axios from 'axios';
+import { local } from 'd3-selection';
 
 export const setBugs = (bugs) => {
     return {
@@ -31,10 +32,9 @@ export const setBugWithId = (modifedBug) => {
 
 export const getAllStatuses = () => {
     return (dispatch) => {
-        fetch('http://localhost:8080/statuses')
-            .then((response) => response.json())
-            .then((response) => {
-                dispatch(setStatuses(response))
+        axios.get('http://localhost:8080/statuses')
+            .then(({ data }) => {
+                dispatch(setStatuses(data))
                 dispatch(getAllBugs())
             });
     }
@@ -42,23 +42,15 @@ export const getAllStatuses = () => {
 
 export const getAllBugs = () => {
     return (dispatch) => {
-        fetch('http://localhost:8080/bugs')
-            .then((response) => response.json())
-            .then((allBugs) => dispatch(setBugs(allBugs)));
+        axios.get('http://localhost:8080/bugs')
+            .then(({ data }) => dispatch(setBugs(data)));
     }
 }
 
 export const createBug = (newBugWithStatus) => {
     return (dispatch) => {
-        fetch('http://localhost:8080/bugs', {
-            method: "POST",
-            body: JSON.stringify(newBugWithStatus),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then((response) => response.json())
-            .then((createdBug) => dispatch(addBug(createdBug)));
+        axios.post('http://localhost:8080/bugs', newBugWithStatus)
+            .then(({ data: createdBug }) => dispatch(addBug(createdBug)));
     }
 }
 
@@ -121,9 +113,8 @@ export const setUserNames = (usernames) => {
 
 export const getUserNames = () => {
     return (dispatch) => {
-        fetch("http://localhost:8080/users/namesAndUsernames")
-            .then((response) => response.json())
-            .then((users) => dispatch(setUserNames(users)))
+        axios.get("http://localhost:8080/users/namesAndUsernames")
+            .then(({ data }) => dispatch(setUserNames(data)))
     }
 }
 
@@ -162,9 +153,8 @@ export const startUpdatingBugLabels = (bugId, aNewBugLabels) => {
 
 export const getLabels = () => {
     return (dispatch) => {
-        fetch("http://localhost:8080/labels")
-            .then(response => response.json())
-            .then(responseJSON => dispatch(setLabels(responseJSON)));
+        axios.get("http://localhost:8080/labels")
+            .then(({ data }) => dispatch(setLabels(data)));
     }
 }
 
@@ -177,18 +167,13 @@ export const setLabels = (labels) => {
 
 export const startCreatingNewSwimLane = (swimLane) => {
     return (dispatch) => {
-        fetch('http://localhost:8080/statuses', {
-            method: "POST",
-            body: JSON.stringify({
+        axios.post('http://localhost:8080/statuses',
+            {
                 statusName: swimLane.swimLaneName,
                 statusColor: swimLane.swimLaneColor
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        })
-            .then((response) => response.json())
-            .then((newSwimLane) => dispatch(createNewSwimlane(newSwimLane)));
+            }
+        )
+            .then(({ data: newSwimLane }) => dispatch(createNewSwimlane(newSwimLane)));
     }
 }
 
@@ -266,18 +251,11 @@ export const updateSwimlaneColor = (swimlaneName, newSwimlaneColor) => {
 
 export const startCreatingNewLabel = (newLabelName, newLabelColor) => {
     return (dispatch) => {
-        fetch('http://localhost:8080/labels', {
-            method: "POST",
-            body: JSON.stringify({
-                labelName: newLabelName,
-                labelColor: newLabelColor
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
+        axios.post('http://localhost:8080/labels', {
+            labelName: newLabelName,
+            labelColor: newLabelColor
         })
-            .then((response) => response.json())
-            .then((newLabel) => dispatch(createNewLabel(newLabel)));
+            .then(({ data: newLabel }) => dispatch(createNewLabel(newLabel)));
     }
 }
 
@@ -313,5 +291,106 @@ export const addAttachmentInfo = (bugId, attachmentInfo) => {
             bugId,
             attachmentInfo
         }
+    }
+}
+
+const getTokenExpiredCallback = dispatch => () => {
+    localStorage.removeItem('token');
+    dispatch(tokenExpired());
+}
+
+const setupLocalStorage = (token) => {
+    localStorage.setItem('token', token);
+}
+
+const setupAxios = (token, tokenExpiredHandler) => {
+    axios.defaults.headers.common = { 'Authorization': `Bearer ${token}` };
+    axios.interceptors.response.use(null, function (error) {
+        if (error.status === 401) {
+            tokenExpiredHandler();
+        }
+        return Promise.reject(error);
+    });
+}
+
+export const tryInitializeSecurity = () => {
+    return dispatch => {
+        const existingToken = localStorage.getItem('token');
+        if (existingToken) {
+            axios.get("http://localhost:8080/users/user/current", {
+                headers: {
+                    "Authorization": `Bearer ${existingToken}`
+                }
+            }).then(({ data: loggedInUser }) => {
+                setupLocalStorage(existingToken);
+                setupAxios(existingToken, getTokenExpiredCallback());
+                dispatch(loginSuccessfull(loggedInUser.username, existingToken))
+            }).catch(() => {
+                //empty localstorage and redirect to login
+            })
+        } else {
+            //redirect to login
+        }
+    }
+}
+
+export const tryLogin = (isRememberMeNeeded, username, password) => {
+    return dispatch => {
+        axios.post("http://localhost:8080/auth/signin", {
+            username,
+            password
+        })
+            .then(response => {
+                if (isRememberMeNeeded)
+                    setupLocalStorage(response.data.accessToken);
+
+                setupAxios(response.data.accessToken, getTokenExpiredCallback(dispatch));
+
+                dispatch(loginSuccessfull(username, response.data.accessToken));
+            })
+            .catch(() => {
+                dispatch(loginFailed())
+            })
+    }
+}
+
+export const loginSuccessfull = (username, token) => {
+    return {
+        type: LOGIN_SUCCESSFULL,
+        data: {
+            username,
+            token
+        }
+    }
+}
+
+export const loginFailed = () => {
+    return {
+        type: LOGIN_FAILED
+    }
+}
+
+export const announceTokenExpired = () => {
+    return dispatch => {
+        getTokenExpiredCallback(dispatch)();
+    }
+}
+
+export const tokenExpired = () => {
+    return {
+        type: TOKEN_EXPIRED
+    }
+}
+
+export const clearLoginData = () => {
+    return {
+        type: CLEAR_LOGIN_DATA
+    }
+}
+
+export const logout = () => {
+    return dispatch => {
+        localStorage.clear();
+        dispatch(clearLoginData());
     }
 }

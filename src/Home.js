@@ -34,7 +34,7 @@ import Grid from '@material-ui/core/Grid';
 import GenericModal from './GenericModal';
 import CreateSwimLaneModalContent from './CreateSwimLaneModalContent';
 import { connect } from 'react-redux';
-import { startCreatingNewSwimLane, getLabels } from './redux-stuff/actions/actionCreators';
+import { startCreatingNewSwimLane, getLabels, logout } from './redux-stuff/actions/actionCreators';
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
 
@@ -174,6 +174,10 @@ class ResponsiveDrawer extends React.Component {
         this.props.dispatch(startCreatingNewSwimLane(newSwimLane));
     }
 
+    onSignOut = () => {
+        this.props.dispatch(logout());
+    }
+
     render() {
         const { classes, theme } = this.props;
         const { anchorEl, mobileMoreAnchorEl } = this.state;
@@ -190,6 +194,7 @@ class ResponsiveDrawer extends React.Component {
             >
                 <MenuItem onClick={this.handleMenuClose}>Profile</MenuItem>
                 <MenuItem onClick={this.handleMenuClose}>My account</MenuItem>
+                <MenuItem onClick={this.onSignOut}>Sign out</MenuItem>
             </Menu>
         );
 
