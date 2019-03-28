@@ -305,6 +305,13 @@ class BugDetailsModal extends PureComponent {
                                     }} />
                                 <div className="sidebar__horizontal-separator" />
                                 <BugDetailsSidebarSection
+                                    sectionName="Created by"
+                                    initialData={this.props.bug.createdByUsername}
+                                    isInEditMode={false}
+                                    noEditMode
+                                />
+                                <div className="sidebar__horizontal-separator" />
+                                <BugDetailsSidebarSection
                                     sectionName="Severity"
                                     initialData={this.props.bug.severity}
                                     isInEditMode={this.state.isSeverityInEditMode}

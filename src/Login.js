@@ -88,6 +88,12 @@ class Login extends React.Component {
     })
   }
 
+  onFormKeyDown = (event) => {
+    if (event.keyCode === 13) {
+      this.onLoginButtonClicked();
+    }
+  }
+
   render() {
     const { classes } = this.props;
     const loginBoxPositionCSSClass = this.state.didAppear ? "login__login-box-normal" : "login__login-box-initial";
@@ -104,8 +110,8 @@ class Login extends React.Component {
               </Avatar>
               <Typography component="h1" variant="h5">
                 Sign in
-          </Typography>
-              <form className={classes.form}>
+              </Typography>
+              <form className={classes.form} onKeyDown={this.onFormKeyDown}>
                 <FormControl margin="normal" fullWidth>
                   <InputLabel htmlFor="username">Username</InputLabel>
                   <Input

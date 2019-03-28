@@ -13,7 +13,7 @@ class BugDetailsSidebarSection extends React.PureComponent {
     onEditClick = () => {
         if (this.props.onEditClick)
             this.props.onEditClick();
-        
+
     }
 
     onCancelEdit = () => {
@@ -28,7 +28,7 @@ class BugDetailsSidebarSection extends React.PureComponent {
     }
 
     endEditMode = () => {
-       this.props.onEndEditMode();
+        this.props.onEndEditMode();
     }
 
     render() {
@@ -36,7 +36,7 @@ class BugDetailsSidebarSection extends React.PureComponent {
             <section>
                 <div className="flexbox-horizontal">
                     <Typography className="flex-grow" variant="subtitle2">{this.props.sectionName}</Typography>
-                    
+
                     {this.props.isInEditMode ?
                         <React.Fragment>
                             {
@@ -50,7 +50,11 @@ class BugDetailsSidebarSection extends React.PureComponent {
                             }
                         </React.Fragment>
                         :
-                        <Typography className="sidebar__edit-button" variant="subtitle2" onClick={this.onEditClick}>Edit</Typography>
+                        this.props.noEditMode ?
+                            null
+                            :
+                            <Typography className="sidebar__edit-button" variant="subtitle2" onClick={this.onEditClick}>Edit</Typography>
+
                     }
                 </div>
                 {this.props.isInEditMode ?

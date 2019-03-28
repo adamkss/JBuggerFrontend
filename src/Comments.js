@@ -6,7 +6,7 @@ import Comment from './Comment';
 export default class Comments extends Component {
     render() {
         return (
-            <div>
+            <div style={{ marginBottom: "10px" }}>
                 <div className="flexbox-horizontal">
                     <Typography className="flex-grow" variant="subtitle2">Comments</Typography>
                     <IconButton
