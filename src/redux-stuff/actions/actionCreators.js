@@ -295,12 +295,14 @@ export const addAttachmentInfo = (bugId, attachmentInfo) => {
 }
 
 const getTokenExpiredCallback = dispatch => () => {
-    localStorage.removeItem('token');
+    localStorage.clear();
     dispatch(tokenExpired());
 }
 
-const setupLocalStorage = (token) => {
+const setupLocalStorage = (token, username, name) => {
     localStorage.setItem('token', token);
+    localStorage.setItem('username', username);
+    localStorage.setItem('name', name);
 }
 
 const setupAxios = (token, tokenExpiredHandler) => {
@@ -322,14 +324,14 @@ export const tryInitializeSecurity = () => {
                     "Authorization": `Bearer ${existingToken}`
                 }
             }).then(({ data: loggedInUser }) => {
-                setupLocalStorage(existingToken);
+                setupLocalStorage(existingToken, loggedInUser.username, loggedInUser.name);
                 setupAxios(existingToken, getTokenExpiredCallback());
-                dispatch(loginSuccessfull(loggedInUser.username, existingToken))
+                dispatch(loginSuccessfull(existingToken, loggedInUser.username, loggedInUser.name))
             }).catch(() => {
-                //empty localstorage and redirect to login
+                //emptying localstorage and redirecting to login happens automatically because of axios interceptor of 401 
             })
         } else {
-            //redirect to login
+            //redirect to login happens automatically if loggedIn in the state is false
         }
     }
 }
@@ -340,13 +342,17 @@ export const tryLogin = (isRememberMeNeeded, username, password) => {
             username,
             password
         })
-            .then(response => {
+            .then(({ data: response }) => {
                 if (isRememberMeNeeded)
-                    setupLocalStorage(response.data.accessToken);
+                    setupLocalStorage(
+                        response.accessToken,
+                        response.username,
+                        response.name
+                    );
 
-                setupAxios(response.data.accessToken, getTokenExpiredCallback(dispatch));
+                setupAxios(response.accessToken, getTokenExpiredCallback(dispatch));
 
-                dispatch(loginSuccessfull(username, response.data.accessToken));
+                dispatch(loginSuccessfull(response.accessToken, response.username, response.name));
             })
             .catch(() => {
                 dispatch(loginFailed())
@@ -354,12 +360,13 @@ export const tryLogin = (isRememberMeNeeded, username, password) => {
     }
 }
 
-export const loginSuccessfull = (username, token) => {
+export const loginSuccessfull = (token, username, loggedInUserName) => {
     return {
         type: LOGIN_SUCCESSFULL,
         data: {
             username,
-            token
+            token,
+            loggedInUserName
         }
     }
 }

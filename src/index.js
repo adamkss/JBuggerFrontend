@@ -18,6 +18,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const initialStateSecurityReducer = {
     loggedIn: false,
     username: null,
+    loggedInUserName: null,
     token: null,
     isUsernameOrPasswordIncorrect: false,
     isTokenExpired: false

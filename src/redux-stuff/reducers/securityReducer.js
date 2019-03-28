@@ -7,6 +7,7 @@ const securityReducer = (state = {}, action) => {
                 ...state,
                 loggedIn: true,
                 username: action.data.username,
+                loggedInUserName: action.data.loggedInUserName,
                 token: action.data.token,
                 isUsernameOrPasswordIncorrect: false,
                 isTokenExpired: false
@@ -16,6 +17,7 @@ const securityReducer = (state = {}, action) => {
                 ...state,
                 loggedIn: false,
                 username: null,
+                loggedInUserName: null,
                 token: null,
                 isUsernameOrPasswordIncorrect: false,
                 isTokenExpired: false
@@ -31,6 +33,7 @@ const securityReducer = (state = {}, action) => {
                 ...state,
                 loggedIn: false,
                 username: null,
+                loggedInUserName: null,
                 token: null,
                 isUsernameOrPasswordIncorrect: false,
                 isTokenExpired: true
