@@ -292,6 +292,11 @@ class ResponsiveDrawer extends React.Component {
                                 }}
                             />
                         </div>
+                        <section className="centered-vertically">
+                            <Typography variant="subtitle2" color="inherit">
+                                Welcome, {this.props.loggedInUserName}.
+                                </Typography>
+                        </section>
                         <div className={classes.sectionDesktop}>
                             <IconButton color="inherit">
                                 <Badge badgeContent={4} color="secondary">
@@ -398,7 +403,12 @@ ResponsiveDrawer.propTypes = {
     // Injected by the documentation to work in an iframe.
     // You won't need it on your project.
     container: PropTypes.object,
-    theme: PropTypes.object.isRequired,
+    theme: PropTypes.object.isRequired
 };
 
-export default withStyles(styles, { withTheme: true })(withRouter(connect()(ResponsiveDrawer)));
+const mapStateToProps = state => ({
+    username: state.security.username,
+    loggedInUserName: state.security.loggedInUserName
+})
+
+export default withStyles(styles, { withTheme: true })(withRouter(connect(mapStateToProps)(ResponsiveDrawer)));

@@ -149,3 +149,10 @@
 .with-margin-bottom{
     margin-bottom: 8px;
 }
+
+.centered-vertically{
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
