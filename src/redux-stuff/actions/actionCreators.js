@@ -1,5 +1,6 @@
 import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED } from './actionTypes'
 import axios from 'axios';
+import { local } from 'd3-selection';
 
 export const setBugs = (bugs) => {
     return {
@@ -294,11 +295,15 @@ export const addAttachmentInfo = (bugId, attachmentInfo) => {
 }
 
 const getTokenExpiredCallback = dispatch => () => {
+    localStorage.removeItem('token');
     dispatch(tokenExpired());
 }
 
-const setupLocalStorageAndAxios = (token, tokenExpiredHandler) => {
+const setupLocalStorage = (token) => {
     localStorage.setItem('token', token);
+}
+
+const setupAxios = (token, tokenExpiredHandler) => {
     axios.defaults.headers.common = { 'Authorization': `Bearer ${token}` };
     axios.interceptors.response.use(null, function (error) {
         if (error.status === 401) {
@@ -317,10 +322,8 @@ export const tryInitializeSecurity = () => {
                     "Authorization": `Bearer ${existingToken}`
                 }
             }).then(({ data: loggedInUser }) => {
-                setupLocalStorageAndAxios(
-                    existingToken,
-                    getTokenExpiredCallback(dispatch)
-                );
+                setupLocalStorage(existingToken);
+                setupAxios(existingToken, getTokenExpiredCallback());
                 dispatch(loginSuccessfull(loggedInUser.username, existingToken))
             }).catch(() => {
                 //empty localstorage and redirect to login
@@ -331,15 +334,20 @@ export const tryInitializeSecurity = () => {
     }
 }
 
-export const tryLogin = (username, password, successCallback) => {
+export const tryLogin = (isRememberMeNeeded, username, password, successCallback) => {
     return dispatch => {
         axios.post("http://localhost:8080/auth/signin", {
             username,
             password
         })
             .then(response => {
-                setupLocalStorageAndAxios(response.data.accessToken, getTokenExpiredCallback(dispatch));
+                if (isRememberMeNeeded)
+                    setupLocalStorage(response.data.accessToken);
+
+                setupAxios(response.data.accessToken, getTokenExpiredCallback(dispatch));
+
                 dispatch(loginSuccessfull(username, response.data.accessToken));
+                
                 successCallback();
             })
             .catch(() => {
@@ -364,8 +372,27 @@ export const loginFailed = () => {
     }
 }
 
+export const announceTokenExpired = () => {
+    return dispatch => {
+        getTokenExpiredCallback(dispatch)();
+    }
+}
+
 export const tokenExpired = () => {
     return {
         type: TOKEN_EXPIRED
+    }
+}
+
+export const clearLoginData = () => {
+    return {
+        type: CLEAR_LOGIN_DATA
+    }
+}
+
+export const logout = () => {
+    return dispatch => {
+        localStorage.clear();
+        dispatch(clearLoginData());
     }
 }

@@ -46,9 +46,9 @@ class Login extends React.Component {
     isLoveNeeded: false,
     username: "",
     password: "",
-    isUsernameOrPasswordIncorrect: false
+    isKeepMeLoggedInChecked: true
   }
-  
+
   componentDidMount = () => {
     this.setState({
       didAppear: true
@@ -75,6 +75,7 @@ class Login extends React.Component {
   onLoginButtonClicked = () => {
     this.props.dispatch(
       tryLogin(
+        this.state.isKeepMeLoggedInChecked,
         this.state.username,
         this.state.password,
         () => {
@@ -82,6 +83,12 @@ class Login extends React.Component {
         }
       )
     )
+  }
+
+  onKeepMeLoggedInChange = (oEvent, newValue) => {
+    this.setState({
+      isKeepMeLoggedInChecked: newValue
+    })
   }
 
   render() {
@@ -124,12 +131,24 @@ class Login extends React.Component {
                   />
                 </FormControl>
                 <FormControlLabel
-                  control={<Checkbox value="remember" color="primary" />}
+                  control={
+                    <Checkbox
+                      checked={this.state.isKeepMeLoggedInChecked}
+                      onChange={this.onKeepMeLoggedInChange}
+                      value="remember"
+                      color="primary" />
+                  }
                   label="Remember me"
                 />
                 {this.props.isUsernameOrPasswordIncorrect ?
                   <div className="flexbox-horizontal flexbox-justify-center">
                     <Typography>Username or password is incorrect.</Typography>
+                  </div>
+                  :
+                  null}
+                {this.props.isTokenExpired ?
+                  <div className="flexbox-horizontal flexbox-justify-center">
+                    <Typography>Your token has expired. Please login again.</Typography>
                   </div>
                   :
                   null}
@@ -169,7 +188,8 @@ Login.propTypes = {
 
 const mapStateToProps = state => {
   return {
-    isUsernameOrPasswordIncorrect: state.security.isUsernameOrPasswordIncorrect
+    isUsernameOrPasswordIncorrect: state.security.isUsernameOrPasswordIncorrect,
+    isTokenExpired: state.security.isTokenExpired
   }
 }
 

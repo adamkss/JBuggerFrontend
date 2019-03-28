@@ -11,6 +11,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import thunk from 'redux-thunk';
 import axios from 'axios';
+import { tokenExpired, announceTokenExpired } from './redux-stuff/actions/actionCreators';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -18,7 +19,8 @@ const initialStateSecurityReducer = {
     loggedIn: false,
     username: null,
     token: null,
-    isUsernameOrPasswordIncorrect: false
+    isUsernameOrPasswordIncorrect: false,
+    isTokenExpired: false
 }
 
 const existingToken = localStorage.getItem('token');
@@ -29,7 +31,8 @@ if (existingToken) {
     axios.defaults.headers.common = { 'Authorization': `Bearer ${existingToken}` };
     axios.interceptors.response.use(null, function (error) {
         if (error.response.status === 401) {
-            alert('Expired')
+            store.dispatch(announceTokenExpired());
+            // window.location.pathname = "/login";
         }
         return Promise.reject(error);
     });
