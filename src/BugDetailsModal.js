@@ -5,6 +5,7 @@ import AddIcon from '@material-ui/icons/Add';
 import './BugDetailsModal.css';
 import { closeModal, getUserNames, getLabels, startUpdatingBugLabels, startDownloadingFile, startDeletingAttachment, addAttachmentInfo } from './redux-stuff/actions/actionCreators';
 import BugDetailsSidebarSection from './BugDetailsSidebarSection';
+import History from './History';
 import LabelShort from './LabelShort';
 import AttachmentShortOverview from './AttachmentShortOverview';
 import Comments from './Comments';
@@ -32,7 +33,8 @@ class BugDetailsModal extends PureComponent {
         isLabelsInEditMode: false,
         isAttachmentsInEditMode: false,
         comments: [],
-        isCreateCommentDialogOpen: false
+        isCreateCommentDialogOpen: false,
+        bugChanges: []
     }
 
     constructor(props) {
@@ -72,12 +74,30 @@ class BugDetailsModal extends PureComponent {
         if (prevProps.bug.id !== this.props.bug.id) {
             this.resetAllSubsectionsToViewMode();
             this.getCommentsForCurrentBug();
+            this.getHistoryForCurrentBug();
         }
         if ((prevProps.bug.id !== this.props.bug.id)
             || (prevProps.labels !== this.props.labels)) {
             this.calculateLabelsSelectionState();
         }
-
+        if (prevProps.bug.assignedToUsername !== this.props.bug.assignedToUsername) {
+            this.getHistoryForCurrentBug();
+        }
+        if (prevProps.bug.severity !== this.props.bug.severity) {
+            this.getHistoryForCurrentBug();
+        }
+        if (prevProps.bug.revision !== this.props.bug.revision) {
+            this.getHistoryForCurrentBug();
+        }
+        if (prevProps.bug.targetDate !== this.props.bug.targetDate) {
+            this.getHistoryForCurrentBug();
+        }
+        if (prevProps.bug.description !== this.props.bug.description) {
+            this.getHistoryForCurrentBug();
+        }
+        if (prevProps.bug.attachmentsInfo !== this.props.bug.attachmentsInfo) {
+            this.getHistoryForCurrentBug();
+        }
     }
 
     getCommentsForCurrentBug = () => {
@@ -85,6 +105,15 @@ class BugDetailsModal extends PureComponent {
             .then(({ data: comments }) => {
                 this.setState({
                     comments
+                })
+            })
+    }
+
+    getHistoryForCurrentBug = () => {
+        axios.get(`http://localhost:8080/bugs/bug/${this.props.bug.id}/history`)
+            .then(({ data: history }) => {
+                this.setState({
+                    bugChanges: history
                 })
             })
     }
@@ -97,6 +126,7 @@ class BugDetailsModal extends PureComponent {
         })
 
         this.getCommentsForCurrentBug();
+        this.getHistoryForCurrentBug();
         this.calculateLabelsSelectionState();
     }
 
@@ -251,6 +281,7 @@ class BugDetailsModal extends PureComponent {
         })
             .then(() => {
                 this.getCommentsForCurrentBug();
+                this.getHistoryForCurrentBug();
                 this.setState({
                     isCreateCommentDialogOpen: false
                 })
@@ -499,6 +530,10 @@ class BugDetailsModal extends PureComponent {
                                 <Comments
                                     comments={this.state.comments}
                                     onNewCommentPress={this.onNewCommentPress} />
+
+                                <div className="sidebar__horizontal-separator" />
+                                <History
+                                    changes={this.state.bugChanges} />
                             </main>
                         </div>
                         : ""}
