@@ -80,14 +80,17 @@ export const waitingForBugUpdate = () => {
 
 export const moveBug = (bugId, oldStatus, newStatus) => {
     return (dispatch) => {
-        dispatch(waitingForBugUpdate());
-        axios.put(`http://localhost:8080/bugs/bug/${bugId}/status`, {
-            newStatus
-        }).then((result) => {
-            dispatch(moveBugVisually(bugId, oldStatus, newStatus));
-        }).catch((error) => {
-            console.log(error);
-        })
+        if (oldStatus != newStatus) {
+
+            dispatch(waitingForBugUpdate());
+            axios.put(`http://localhost:8080/bugs/bug/${bugId}/status`, {
+                newStatus
+            }).then((result) => {
+                dispatch(moveBugVisually(bugId, oldStatus, newStatus));
+            }).catch((error) => {
+                console.log(error);
+            })
+        }
     }
 }
 

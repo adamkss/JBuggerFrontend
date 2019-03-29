@@ -1,12 +1,12 @@
 .modal-parent{
     position: absolute;
-    width: 280px;
+    width: 350px;
     background-color: #fff;
     top: 0;
     right: 0;
     height: 100%;
     transition: all 0.3s;
-    transform: translateX(280px);
+    transform: translateX(350px);
     box-shadow: -2px 0px 13px -2px rgba(155,155,163,1);
     z-index: 1200;
     overflow-y: auto;
