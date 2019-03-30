@@ -34,17 +34,24 @@ export default class History extends Component {
                         </Typography>
                         {change.fieldRelatedChange ?
                             <div className="flexbox-horizontal">
-                                <Typography variant="subtitle2">
+                                <Typography variant="subtitle2" style={
+                                    {
+                                        marginRight: "5px"
+                                    }}>
                                     {change.fieldChanged}:
                                 </Typography>
                                 <Typography variant="subtitle2" style={
                                     {
-                                        color: "red"
+                                        color: "red",
+                                        marginRight: "5px"
                                     }
                                 }>
                                     {change.oldValue}
                                 </Typography>
-                                <Typography variant="subtitle2">
+                                <Typography variant="subtitle2" style={
+                                    {
+                                        marginRight: "5px"
+                                    }}>
                                     ->
                                 </Typography>
                                 <Typography variant="subtitle2" style={

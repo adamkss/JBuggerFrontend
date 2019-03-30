@@ -21,6 +21,8 @@ import CreateBugBigDialog from './popovers/CreateBugBigDialog';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { IconButton } from '@material-ui/core';
 
+import axios from 'axios';
+
 function FirstChild(props) {
   const childrenArray = React.Children.toArray(props.children);
   return childrenArray[0] || null;
@@ -184,7 +186,14 @@ class BugsOverview extends Component {
       return;
     }
 
-    this.props.dispatch(reorderStatuses(result.source.index, result.destination.index));
+    const oldOrder = result.source.index;
+    const newOrder = result.destination.index;
+
+    this.props.dispatch(reorderStatuses(oldOrder, newOrder));
+    axios.put(`http://localhost:8080/statuses/order`, {
+      oldOrder,
+      newOrder
+    });
   }
 
   openConfirmBugColumnCreationDialog = () => {

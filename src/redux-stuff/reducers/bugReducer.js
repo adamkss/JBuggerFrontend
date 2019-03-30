@@ -312,7 +312,7 @@ const bugReducer = (state = initialState, action) => {
         case CREATE_SWIMLANE: {
             return {
                 ...state,
-                statuses: [...state.statuses, action.data],
+                statuses: [action.data, ...state.statuses],
                 bugsByStatus: {
                     ...state.bugsByStatus,
                     [action.data.statusName]: []
