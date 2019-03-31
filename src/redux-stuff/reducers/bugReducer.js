@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO } from '../actions/actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS } from '../actions/actionTypes'
 import BugShortOverview from '../../BugShortOverview';
 
 // TODO: do we really need filteredbugs to be a separate entity?
@@ -6,6 +6,7 @@ const initialState = {
     statuses: [],
     allBugs: [],
     bugsByStatus: {},
+    waitingForBugLoading: false,
     filteredBugs: [],
     waitingForBugUpdate: false,
     filterString: null,
@@ -212,13 +213,20 @@ const bugReducer = (state = initialState, action) => {
                 bugsByStatus: initializeBugMapFromArray(action.data)
             }
         }
+        case START_GETTING_BUGS: {
+            return {
+                ...state,
+                waitingForBugLoading: true
+            }
+        }
         case SET_BUGS:
             return {
                 ...state,
                 allBugs: action.data,
                 bugsByStatus: mapBugsToObjectByStatus(state.statuses, action.data),
                 filteredBugs: action.data,
-                bugsById: mapBugsToIdMap(action.data)
+                bugsById: mapBugsToIdMap(action.data),
+                waitingForBugLoading: false
             }
         case ADD_BUG: {
             let newAllBugs = [...state.allBugs, action.newBug];

@@ -1,4 +1,5 @@
 export const SET_BUGS = "SET_BUGS"
+export const START_GETTING_BUGS = "START_GETTING_BUGS"
 export const SET_STATUSES = "SET_STATUSES"
 export const SET_BUGS_BY_STATUS = "SET_BUGS_BY_STATUS"
 export const ADD_BUG = "ADD_BUG"

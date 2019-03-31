@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS } from './actionTypes'
 import axios from 'axios';
 import { local } from 'd3-selection';
 
@@ -32,6 +32,7 @@ export const setBugWithId = (modifedBug) => {
 
 export const getAllStatuses = () => {
     return (dispatch) => {
+        dispatch(startGettingAllBugs());
         axios.get('http://localhost:8080/statuses')
             .then(({ data }) => {
                 dispatch(setStatuses(data))
@@ -40,8 +41,15 @@ export const getAllStatuses = () => {
     }
 }
 
+export const startGettingAllBugs = () => {
+    return {
+        type: START_GETTING_BUGS
+    }
+}
+
 export const getAllBugs = () => {
     return (dispatch) => {
+        dispatch(startGettingAllBugs());
         axios.get('http://localhost:8080/bugs')
             .then(({ data }) => dispatch(setBugs(data)));
     }

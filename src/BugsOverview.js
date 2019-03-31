@@ -308,7 +308,7 @@ class BugsOverview extends Component {
     return (
       <div className="parent-relative" tabIndex="0" onKeyDown={this.onKeyPressed}>
 
-        {this.props.waitingForBugUpdate ?
+        {this.props.waitingForBugUpdate || this.props.waitingForBugLoading ?
           <div className="loadinge-image-wrapper">
             <div className="loading-image-wrapper__background" />
           </div>
@@ -443,6 +443,7 @@ const mapStateToProps = state => ({
   bugs: state.bugs.allBugs,
   bugsByStatus: state.bugs.bugsByStatus,
   waitingForBugUpdate: state.bugs.waitingForBugUpdate,
+  waitingForBugLoading: state.bugs.waitingForBugLoading,
   activeBugToModifyID: state.bugs.activeBugToModifyID
 });
 
