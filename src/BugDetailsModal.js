@@ -324,14 +324,29 @@ class BugDetailsModal extends PureComponent {
                                     onSave={this.onSaveGeneral('assignedToUsername')}
                                     renderEditControl={() => {
                                         return (
-                                            <Select
-                                                value={this.state.assignedToUsernameNew || this.props.bug.assignedToUsername}
-                                                onChange={this.handleChange('assignedToUsernameNew')}
-                                            >
-                                                {this.props.usernames.map(user =>
-                                                    <MenuItem key={user.username} value={user.username}>{user.username + "-" + user.name}</MenuItem>
-                                                )}
-                                            </Select>
+                                            <div className="flexbox-vertical flexbox-align-items-center">
+                                                <Select
+                                                    value={this.state.assignedToUsernameNew || this.props.bug.assignedToUsername}
+                                                    onChange={this.handleChange('assignedToUsernameNew')}
+                                                    style  = {{
+                                                        width: "100%"
+                                                    }}
+                                                >
+                                                    {this.props.usernames.map(user =>
+                                                        <MenuItem key={user.username} value={user.username}>{user.username + "-" + user.name}</MenuItem>
+                                                    )}
+                                                </Select>
+                                                <Typography
+                                                    className="sidebar__edit-button slight-padding-top"
+                                                    variant="subtitle2"
+                                                    onClick={() => {
+                                                        this.setState({
+                                                            assignedToUsernameNew: this.props.currentlyLoggedInUsername
+                                                        })
+                                                    }}>
+                                                    Assign to me
+                                                </Typography>
+                                            </div>
                                         )
                                     }} />
                                 <div className="sidebar__horizontal-separator" />
@@ -558,7 +573,8 @@ const mapStateToProps = state => ({
     bug: state.bugs.activeBugToModify,
     usernames: state.bugs.usernames,
     severities: state.bugs.severities,
-    labels: state.bugs.labels
+    labels: state.bugs.labels,
+    currentlyLoggedInUsername: state.security.username
 });
 
 export default connect(mapStateToProps)(BugDetailsModal);

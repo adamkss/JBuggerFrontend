@@ -61,6 +61,10 @@
     padding-top: 10px;
 }
 
+.slight-padding-top{
+    padding-top: 5px;
+}
+
 .flexbox-horizontal{
     display:flex;
     flex-direction: row;
