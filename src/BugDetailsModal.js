@@ -13,6 +13,7 @@ import { downloadFile } from './utils/DownloadHelper';
 import { uploadFile } from './utils/UploadHelper';
 import CreateCommentDialog from './popovers/CreateCommentDialog';
 import axios from 'axios';
+import { getMaximumAndMinimumCorrectedDate } from './utils/Validators';
 
 class BugDetailsModal extends PureComponent {
     state = {
@@ -288,6 +289,19 @@ class BugDetailsModal extends PureComponent {
             })
     }
 
+    handleTargetDateChange = (event) => {
+        if (event.target.value) {
+            const correctedDate = getMaximumAndMinimumCorrectedDate(event.target.value);
+            this.setState({
+                targetDateNew: correctedDate
+            })
+        } else {
+            this.setState({
+                targetDateNew: null
+            })
+        }
+    }
+
     render() {
         let extraClassIfOpen = this.state.open && !this.props.mustClose ? " modal-expanded" : "";
         return (
@@ -328,7 +342,7 @@ class BugDetailsModal extends PureComponent {
                                                 <Select
                                                     value={this.state.assignedToUsernameNew || this.props.bug.assignedToUsername}
                                                     onChange={this.handleChange('assignedToUsernameNew')}
-                                                    style  = {{
+                                                    style={{
                                                         width: "100%"
                                                     }}
                                                 >
@@ -407,7 +421,7 @@ class BugDetailsModal extends PureComponent {
                                                     shrink: true,
                                                 }}
                                                 value={this.state.targetDateNew || this.props.bug.targetDate}
-                                                onChange={this.handleChange('targetDateNew')}
+                                                onChange={this.handleTargetDateChange}
                                             />
                                         )
                                     }} />

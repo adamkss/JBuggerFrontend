@@ -14,7 +14,7 @@ import { connect } from 'react-redux';
 import { getUserNames } from '../redux-stuff/actions/actionCreators';
 
 import LabelShort from '../LabelShort';
-
+import { getMaximumAndMinimumCorrectedDate } from '../utils/Validators';
 class CreateBugBigDialog extends Component {
 
   state = {
@@ -118,9 +118,17 @@ class CreateBugBigDialog extends Component {
   }
 
   onTargetDateChange = (event) => {
-    this.setState({
-      targetDate: event.target.value
-    })
+    if (event.target.value) {
+
+      const correctedDate = getMaximumAndMinimumCorrectedDate(event.target.value);
+      this.setState({
+        targetDate: correctedDate
+      })
+    } else {
+      this.setState({
+        targetDate: null
+      })
+    }
   }
 
   onSeveritySelected = (severity) => {
