@@ -2,17 +2,12 @@ import Popover from '@material-ui/core/Popover';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import React, { Component } from 'react'
 
 export default class CreateBugPopover extends Component {
     state = {
         title: "",
-        description: "",
-        severity: ""
+        description: ""
     }
 
     handleChange = name => event => {
@@ -22,9 +17,18 @@ export default class CreateBugPopover extends Component {
     };
 
     onPressCreateNewBug = () => {
-        this.props.handleCreateNewBug(this.state);
+        this.props.handleCreateNewBug({
+            title: this.state.title,
+            description: this.state.description
+        }
+        );
     }
 
+    onKeyDownPopover = (event) => {
+        if (event.keyCode === 13 && this.state.title != "") {
+            this.onPressCreateNewBug();
+        }
+    }
     render() {
         return (
             <Popover
@@ -40,6 +44,7 @@ export default class CreateBugPopover extends Component {
                     vertical: 'top',
                     horizontal: 'center',
                 }}
+                onKeyDown={this.onKeyDownPopover}
             >
                 <Grid
                     container
@@ -51,6 +56,8 @@ export default class CreateBugPopover extends Component {
                         label="Title"
                         value={this.state.title}
                         onChange={this.handleChange('title')}
+                        error={this.state.title == ""}
+                        autoFocus
                     />
                     <TextField
                         id="description"
@@ -59,36 +66,15 @@ export default class CreateBugPopover extends Component {
                         value={this.state.description}
                         onChange={this.handleChange('description')}
                     />
-                    <TextField
-                        id="date"
-                        className="text-field"
-                        label="Target date"
-                        type="date"
-                        defaultValue="2019-01-01"
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                    />
-                    <FormControl className="text-field">
-                        <InputLabel htmlFor="severity">Severity</InputLabel>
-                        <Select
-                            value={this.state.severity}
-                            onChange={this.handleChange('severity')}
-                            inputProps={{
-                                name: 'severity',
-                                id: 'severity',
-                            }}
-                        >
-                            <MenuItem value={"LOW"}>Low</MenuItem>
-                            <MenuItem value={"MEDIUM"}>Medium</MenuItem>
-                            <MenuItem value={"HIGH"}>High</MenuItem>
-                            <MenuItem value={"CRITICAL"}>Critical</MenuItem>
-                        </Select>
-                    </FormControl>
+
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={this.onPressCreateNewBug}>
+                        onClick={this.onPressCreateNewBug}
+                        style={{
+                            marginTop: "6px"
+                        }}
+                        disabled={this.state.title == ""}>
                         Create
                      </Button>
                 </Grid>

@@ -374,12 +374,16 @@ class BugsOverview extends Component {
           </Droppable>
         </DragDropContext>
 
-        <CreateBugPopover
-          id="new-bug-popover"
-          open={isNewBugPopoverOpen}
-          anchorEl={newBugPopoverAnchorEl}
-          onClose={this.handleNewBugPopoverClose}
-          handleCreateNewBug={this.handleCreateNewBugFromPopover} />
+        {isNewBugPopoverOpen ?
+          <CreateBugPopover
+            id="new-bug-popover"
+            open={true}
+            anchorEl={newBugPopoverAnchorEl}
+            onClose={this.handleNewBugPopoverClose}
+            handleCreateNewBug={this.handleCreateNewBugFromPopover} />
+          : null
+        }
+
 
         <MoreBugColumnOptionsPopover
           id="more-bug-column-options-popover"
