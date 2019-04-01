@@ -308,7 +308,7 @@ class BugsOverview extends Component {
     return (
       <div className="parent-relative" tabIndex="0" onKeyDown={this.onKeyPressed}>
 
-        {this.props.waitingForBugUpdate || this.props.waitingForBugLoading ?
+        {this.props.waitingForBugLoading ?
           <div className="loadinge-image-wrapper">
             <div className="loading-image-wrapper__background" />
           </div>
@@ -363,6 +363,7 @@ class BugsOverview extends Component {
                         bugDragStarted={this.bugDragStarted}
                         onBugDrop={this.bugDropped}
                         isPossibleDropTarget={this.state.draggingBugFromStatus && this.state.draggingBugFromStatus !== bugStatus.statusName}
+                        waitingForBugLoading={bugStatus.statusName === this.props.movingBugOldStatus || bugStatus.statusName === this.props.movingBugNewStatus}
                       />
                     )}
                   </Draggable>
@@ -442,9 +443,11 @@ const mapStateToProps = state => ({
   statuses: state.bugs.statuses,
   bugs: state.bugs.allBugs,
   bugsByStatus: state.bugs.bugsByStatus,
-  waitingForBugUpdate: state.bugs.waitingForBugUpdate,
+  waitingForBugStatusUpdate: state.bugs.waitingForBugStatusUpdate,
   waitingForBugLoading: state.bugs.waitingForBugLoading,
-  activeBugToModifyID: state.bugs.activeBugToModifyID
+  activeBugToModifyID: state.bugs.activeBugToModifyID,
+  movingBugOldStatus: state.bugs.movingBugOldStatus,
+  movingBugNewStatus: state.bugs.movingBugNewStatus
 });
 
 export default withStyles(styles)(connect(mapStateToProps)(BugsOverview));

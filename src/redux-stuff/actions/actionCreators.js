@@ -1,6 +1,5 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, GET_LABELS, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE } from './actionTypes'
 import axios from 'axios';
-import { local } from 'd3-selection';
 
 export const setBugs = (bugs) => {
     return {
@@ -80,9 +79,13 @@ export const moveBugVisually = (bugId, oldStatus, newStatus) => {
     }
 }
 
-export const waitingForBugUpdate = () => {
+export const waitingForBugStatusUpdate = (oldStatus, newStatus) => {
     return {
-        type: WAITING_FOR_BUG_UPDATE
+        type: WAITING_FOR_BUG_STATUS_UPDATE,
+        data: { 
+            oldStatus,
+            newStatus
+        }
     }
 }
 
@@ -90,7 +93,7 @@ export const moveBug = (bugId, oldStatus, newStatus) => {
     return (dispatch) => {
         if (oldStatus != newStatus) {
 
-            dispatch(waitingForBugUpdate());
+            dispatch(waitingForBugStatusUpdate(oldStatus, newStatus));
             axios.put(`http://localhost:8080/bugs/bug/${bugId}/status`, {
                 newStatus
             }).then((result) => {

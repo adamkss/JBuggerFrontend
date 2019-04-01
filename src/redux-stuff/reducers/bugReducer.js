@@ -1,5 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, WAITING_FOR_BUG_UPDATE, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS } from '../actions/actionTypes'
-import BugShortOverview from '../../BugShortOverview';
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE } from '../actions/actionTypes'
 
 // TODO: do we really need filteredbugs to be a separate entity?
 const initialState = {
@@ -8,14 +7,16 @@ const initialState = {
     bugsByStatus: {},
     waitingForBugLoading: false,
     filteredBugs: [],
-    waitingForBugUpdate: false,
+    waitingForBugStatusUpdate: false,
     filterString: null,
     activeBugToModifyID: null,
     activeBugToModify: null,
     bugsById: {},
     usernames: [],
     severities: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
-    labels: []
+    labels: [],
+    movingBugOldStatus: null,
+    movingBugNewStatus: null
 }
 
 const addBugByStatus = function (oldBugsByStatus, newBug) {
@@ -247,10 +248,14 @@ const bugReducer = (state = initialState, action) => {
                 filterString: action.filterString
             }
         }
-        case WAITING_FOR_BUG_UPDATE: {
+        case WAITING_FOR_BUG_STATUS_UPDATE: {
+            const { oldStatus, newStatus } = action.data;
+
             return {
                 ...state,
-                waitingForBugUpdate: true
+                waitingForBugStatusUpdate: true,
+                movingBugOldStatus: oldStatus,
+                movingBugNewStatus: newStatus
             }
         }
 
@@ -258,7 +263,7 @@ const bugReducer = (state = initialState, action) => {
             if (action.data.oldStatus === action.data.newStatus)
                 return {
                     ...state,
-                    waitingForBugUpdate: false
+                    waitingForBugStatusUpdate: false
                 }
             let allBugsWithoutModified = [...state.allBugs.filter(bug => bug.id != action.data.bugId)];
             let modifiedBug = {
@@ -272,7 +277,9 @@ const bugReducer = (state = initialState, action) => {
                 allBugs: allBugs,
                 bugsByStatus: mapBugsToObjectByStatus(state.statuses, filterBugs(allBugs, state.filterString)),
                 bugsById: getBugsMapWithNewBug(state.bugsById, modifiedBug),
-                waitingForBugUpdate: false
+                waitingForBugStatusUpdate: false,
+                movingBugOldStatus: null,
+                movingBugNewStatus: null
             }
         }
         case BUG_CLICKED: {

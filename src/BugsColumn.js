@@ -63,27 +63,38 @@ class BugsColumn extends PureComponent {
             statusColor={this.props.statusColor}
             onAddBug={this.props.onAddBug}
             onMoreOptions={this.props.onMoreOptions} />
-          <Droppable onDrop={this.onDrop} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave}
-            className={"flexbox-vertical-centered vertical-scroll-container left-right-padded-container full-width full-height border-radius-bottom"}>
-            {this.props.bugs.length != 0 ?
-              this.props.bugs.map(
-                (bug) =>
-                  <Draggable
-                    key={bug.id}
-                    transferData={bug.id + "-" + this.props.bugStatus}
-                    onDragStart={this.onBugDragStart}
-                    onDragEnd={this.onDragEnd}>
-                    <BugShortOverview 
-                      title={bug.title} 
-                      id={bug.id} 
-                      labels={bug.labels} 
-                      severity={bug.severity} />
-                  </Draggable>
-              )
+
+          <div className="bugs-column__content">
+            {this.props.waitingForBugLoading ?
+              <div className="bugs-column__loadinge-image-wrapper">
+                <div className="bugs-column_loading-image-wrapper__background border-radius-bottom" />
+              </div>
               :
-              <InfoMessage message="No bugs here." />
+              ""
             }
-          </Droppable>
+            <Droppable onDrop={this.onDrop} onDragOver={this.onDragOver} onDragLeave={this.onDragLeave}
+              className={"flexbox-vertical-centered vertical-scroll-container left-right-padded-container full-width full-height border-radius-bottom"}>
+              {this.props.bugs.length != 0 ?
+                this.props.bugs.map(
+                  (bug) =>
+                    <Draggable
+                      key={bug.id}
+                      transferData={bug.id + "-" + this.props.bugStatus}
+                      onDragStart={this.onBugDragStart}
+                      onDragEnd={this.onDragEnd}>
+                      <BugShortOverview
+                        title={bug.title}
+                        id={bug.id}
+                        labels={bug.labels}
+                        severity={bug.severity} />
+                    </Draggable>
+                )
+                :
+                <InfoMessage message="No bugs here." />
+              }
+            </Droppable>
+          </div>
+
         </div>
       </div>
     );
