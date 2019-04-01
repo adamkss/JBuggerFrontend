@@ -1,14 +1,13 @@
 import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE } from '../actions/actionTypes'
 
-// TODO: do we really need filteredbugs to be a separate entity?
 const initialState = {
     statuses: [],
     allBugs: [],
     bugsByStatus: {},
+    bugsByStatusFiltered: {},
     waitingForBugLoading: false,
-    filteredBugs: [],
     waitingForBugStatusUpdate: false,
-    filterString: null,
+    filterString: "",
     activeBugToModifyID: null,
     activeBugToModify: null,
     bugsById: {},
@@ -53,6 +52,17 @@ const filterBugs = function (bugs, filterString) {
 
     let filterStringUpperCase = filterString.toUpperCase();
     return bugs.filter(bug => bug.title.toUpperCase().includes(filterStringUpperCase));
+}
+
+const filterBugsByStatusByFilterString = (bugsByStatus, filterString) => {
+    let filteredBugsByStatus = {};
+    let filterStringUpperCase = filterString.toUpperCase();
+
+    Object.keys(bugsByStatus).forEach(key => {
+        filteredBugsByStatus[key] = bugsByStatus[key].filter(bug => bug.title.toUpperCase().includes(filterStringUpperCase));
+    });
+
+    return filteredBugsByStatus;
 }
 
 const initializeBugMapFromArray = (statuses) => {
@@ -221,30 +231,32 @@ const bugReducer = (state = initialState, action) => {
             }
         }
         case SET_BUGS:
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, action.data);
             return {
                 ...state,
                 allBugs: action.data,
-                bugsByStatus: mapBugsToObjectByStatus(state.statuses, action.data),
-                filteredBugs: action.data,
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: mapBugsToIdMap(action.data),
                 waitingForBugLoading: false
             }
         case ADD_BUG: {
             let newAllBugs = [...state.allBugs, action.newBug];
+            const bugsByStatus = addBugToBugsByStatus(state.bugsByStatus, action.newBug);
             return {
                 ...state,
                 allBugs: newAllBugs,
-                bugsByStatus: addBugToBugsByStatus(state.bugsByStatus, action.newBug),
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: getBugsMapWithNewBug(state.bugsById, action.newBug)
             }
         }
         case FILTER_BUGS: {
-            let filteredBugs = filterBugs(state.allBugs, action.filterString);
-
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, state.allBugs);
             return {
                 ...state,
-                bugsByStatus: mapBugsToObjectByStatus(state.statuses, filteredBugs),
-                filteredBugs,
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, action.filterString),
                 filterString: action.filterString
             }
         }
@@ -272,10 +284,12 @@ const bugReducer = (state = initialState, action) => {
             };
             let allBugs = [...allBugsWithoutModified, modifiedBug];
 
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, allBugs);
             return {
                 ...state,
                 allBugs: allBugs,
-                bugsByStatus: mapBugsToObjectByStatus(state.statuses, filterBugs(allBugs, state.filterString)),
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: getBugsMapWithNewBug(state.bugsById, modifiedBug),
                 waitingForBugStatusUpdate: false,
                 movingBugOldStatus: null,
@@ -303,12 +317,12 @@ const bugReducer = (state = initialState, action) => {
         }
         case SET_BUG: {
             let newAllBugs = editBugById(state.allBugs, action.data);
-
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, newAllBugs);
             return {
                 ...state,
                 allBugs: newAllBugs,
-                bugsByStatus: mapBugsToObjectByStatus(state.statuses, newAllBugs),
-                filteredBugs: mapBugsToObjectByStatus(state.statuses, filterBugs(newAllBugs, state.filterString)),
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: mapBugsToIdMap(newAllBugs)
             }
         }
@@ -325,13 +339,16 @@ const bugReducer = (state = initialState, action) => {
             }
         }
         case CREATE_SWIMLANE: {
+            const bugsByStatus = {
+                ...state.bugsByStatus,
+                [action.data.statusName]: []
+            };
+
             return {
                 ...state,
                 statuses: [action.data, ...state.statuses],
-                bugsByStatus: {
-                    ...state.bugsByStatus,
-                    [action.data.statusName]: []
-                }
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString)
             }
         }
         case REORDER_STATUSES: {
@@ -342,20 +359,24 @@ const bugReducer = (state = initialState, action) => {
         }
         case DELETE_SWIMLANE_WITH_BUGS: {
             let statusName = action.data;
+            const bugsByStatus = deleteKeyFromObject(state.bugsByStatus, statusName);
             return {
                 ...state,
                 allBugs: deleteBugsWithStatus(state.allBugs, statusName),
-                bugsByStatus: deleteKeyFromObject(state.bugsByStatus, statusName),
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: deleteBugsWithStatusFromMap(state.bugsById, statusName),
                 statuses: state.statuses.filter(status => status.statusName !== statusName)
             }
         }
         case UPDATE_SWIMLANE_NAME: {
             let { oldSwimLaneName, newSwimLaneName } = action.data;
+            const bugsByStatus = updateBugsByStatusNameOfStatus(state.bugsByStatus, oldSwimLaneName, newSwimLaneName);
             return {
                 ...state,
                 allBugs: updateStatusNameOfBugs(state.allBugs, oldSwimLaneName, newSwimLaneName),
-                bugsByStatus: updateBugsByStatusNameOfStatus(state.bugsByStatus, oldSwimLaneName, newSwimLaneName),
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: updateStatusNameOfBugsById(state.bugsById, oldSwimLaneName, newSwimLaneName),
                 statuses: updateStatusesWithNewStatusName(state.statuses, oldSwimLaneName, newSwimLaneName)
             }
@@ -375,10 +396,12 @@ const bugReducer = (state = initialState, action) => {
         }
         case DELETE_ATTACHMENT: {
             const newAllBugs = deleteAttachmentFromAllBugs(state.allBugs, action.data.bugId, action.data.attachmentId);
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, newAllBugs);
             return {
                 ...state,
                 allBugs: newAllBugs,
-                bugsByStatus: mapBugsToObjectByStatus(state.statuses, newAllBugs),
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: mapBugsToIdMap(newAllBugs),
                 activeBugToModify: {
                     ...state.activeBugToModify,
@@ -389,10 +412,12 @@ const bugReducer = (state = initialState, action) => {
         }
         case ADD_ATTACHMENT_INFO: {
             const newAllBugs = addAttachmentInfoToBug(state.allBugs, action.data.bugId, action.data.attachmentInfo);
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, newAllBugs);
             return {
                 ...state,
                 allBugs: newAllBugs,
-                bugsByStatus: mapBugsToObjectByStatus(state.statuses, newAllBugs),
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus),
                 bugsById: mapBugsToIdMap(newAllBugs),
                 activeBugToModify: {
                     ...state.activeBugToModify,

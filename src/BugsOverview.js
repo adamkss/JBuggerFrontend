@@ -357,7 +357,7 @@ class BugsOverview extends Component {
                         provided={provided}
                         bugStatus={bugStatus.statusName}
                         statusColor={bugStatus.statusColor}
-                        bugs={this.props.bugsByStatus[bugStatus.statusName] ? this.props.bugsByStatus[bugStatus.statusName] : []}
+                        bugs={this.props.bugsByStatusFiltered[bugStatus.statusName] ? this.props.bugsByStatusFiltered[bugStatus.statusName] : []}
                         onAddBug={this.createOnAddBugCallbackForStatus(bugStatus.statusName)}
                         onMoreOptions={this.createOnMoreOptionsCallbackForStatus(bugStatus.statusName, bugStatus.statusColor)}
                         bugDragStarted={this.bugDragStarted}
@@ -443,6 +443,7 @@ const mapStateToProps = state => ({
   statuses: state.bugs.statuses,
   bugs: state.bugs.allBugs,
   bugsByStatus: state.bugs.bugsByStatus,
+  bugsByStatusFiltered: state.bugs.bugsByStatusFiltered,
   waitingForBugStatusUpdate: state.bugs.waitingForBugStatusUpdate,
   waitingForBugLoading: state.bugs.waitingForBugLoading,
   activeBugToModifyID: state.bugs.activeBugToModifyID,
