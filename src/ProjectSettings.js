@@ -7,7 +7,7 @@ import { Typography, Button } from '@material-ui/core';
 import ProjectSettingsSection from './ProjectSettingsSection';
 import LabelShort from './LabelShort';
 import NewLabelDialog from './popovers/NewLabelDialog';
-import { createNewLabel, startCreatingNewLabel } from './redux-stuff/actions/actionCreators';
+import { createNewLabel, startCreatingNewLabel, labelCreationAbandoned } from './redux-stuff/actions/actionCreators';
 
 class ProjectSettings extends Component {
     state = {
@@ -25,16 +25,20 @@ class ProjectSettings extends Component {
             isNewLabelDialogOpen: false
         })
     }
-
+    
     onNewLabelDialogCancel = () => {
         this.closeNewLabelDialog();
+        this.props.dispatch(labelCreationAbandoned())
     }
 
     onNewLabelDialogConfirm = (newLabelName, newLabelColor) => {
-        this.props.dispatch(startCreatingNewLabel(newLabelName, newLabelColor));
-        this.closeNewLabelDialog();
+        this.props.dispatch(startCreatingNewLabel(newLabelName, newLabelColor, this.closeNewLabelDialog));
     }
 
+    newValueThenWrongWasInserted = () => {
+        this.props.dispatch(labelCreationAbandoned());
+    }
+    
     render() {
         return (
             <>
@@ -54,7 +58,9 @@ class ProjectSettings extends Component {
                 {this.state.isNewLabelDialogOpen ?
                     <NewLabelDialog
                         onCancel={this.onNewLabelDialogCancel}
-                        onConfirm={this.onNewLabelDialogConfirm} />
+                        onConfirm={this.onNewLabelDialogConfirm}
+                        doesLabelAlreadyExist={this.props.doesNewLabelAlreadyExist}
+                        newValueThenWrongWasInserted={this.newValueThenWrongWasInserted} />
                     :
                     null
                 }
@@ -65,7 +71,8 @@ class ProjectSettings extends Component {
 }
 
 const mapStateToProps = state => ({
-    labels: state.bugs.labels
+    labels: state.bugs.labels,
+    doesNewLabelAlreadyExist: state.bugs.doesNewLabelAlreadyExist
 });
 
 export default connect(mapStateToProps)(ProjectSettings);

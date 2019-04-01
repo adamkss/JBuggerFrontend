@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED } from './actionTypes'
 import axios from 'axios';
 
 export const setBugs = (bugs) => {
@@ -82,7 +82,7 @@ export const moveBugVisually = (bugId, oldStatus, newStatus) => {
 export const waitingForBugStatusUpdate = (oldStatus, newStatus) => {
     return {
         type: WAITING_FOR_BUG_STATUS_UPDATE,
-        data: { 
+        data: {
             oldStatus,
             newStatus
         }
@@ -263,13 +263,35 @@ export const updateSwimlaneColor = (swimlaneName, newSwimlaneColor) => {
     }
 }
 
-export const startCreatingNewLabel = (newLabelName, newLabelColor) => {
+export const newLabelAlreadyExists = () => {
+    return {
+        type: NEW_LABEL_ALREADY_EXISTS
+    }
+}
+
+export const labelCreationAbandoned = () => {
+    return {
+        type: LABEL_CREATION_ABANDONED
+    }
+}
+
+export const startCreatingNewLabel = (newLabelName, newLabelColor, successCallback) => {
     return (dispatch) => {
         axios.post('http://localhost:8080/labels', {
             labelName: newLabelName,
             labelColor: newLabelColor
         })
-            .then(({ data: newLabel }) => dispatch(createNewLabel(newLabel)));
+            .then(({ data: newLabel }) => {
+                dispatch(createNewLabel(newLabel));
+                successCallback();
+            }
+            )
+            .catch(({ response }) => {
+                if (response.status === 409) {
+                    dispatch(newLabelAlreadyExists());
+                }
+            }
+            );
     }
 }
 

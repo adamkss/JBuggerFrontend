@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE } from '../actions/actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED } from '../actions/actionTypes'
 
 const initialState = {
     statuses: [],
@@ -15,7 +15,8 @@ const initialState = {
     severities: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
     labels: [],
     movingBugOldStatus: null,
-    movingBugNewStatus: null
+    movingBugNewStatus: null,
+    doesNewLabelAlreadyExist: false
 }
 
 const addBugByStatus = function (oldBugsByStatus, newBug) {
@@ -391,7 +392,8 @@ const bugReducer = (state = initialState, action) => {
         case CREATE_LABEL: {
             return {
                 ...state,
-                labels: [...state.labels, action.data]
+                labels: [...state.labels, action.data],
+                doesNewLabelAlreadyExist: false
             }
         }
         case DELETE_ATTACHMENT: {
@@ -423,6 +425,18 @@ const bugReducer = (state = initialState, action) => {
                     ...state.activeBugToModify,
                     attachmentsInfo: [...state.activeBugToModify.attachmentsInfo, action.data.attachmentInfo]
                 }
+            }
+        }
+        case NEW_LABEL_ALREADY_EXISTS: {
+            return {
+                ...state,
+                doesNewLabelAlreadyExist: true
+            }
+        }
+        case LABEL_CREATION_ABANDONED: {
+            return {
+                ...state,
+                doesNewLabelAlreadyExist: false
             }
         }
         default:

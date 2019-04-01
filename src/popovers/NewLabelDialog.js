@@ -4,7 +4,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import Dialog from '@material-ui/core/Dialog';
-import { Input } from '@material-ui/core';
+import { Input, Typography } from '@material-ui/core';
 
 import ColorSelecter from '../ColorSelecter';
 
@@ -30,6 +30,9 @@ class NewLabelDialog extends React.Component {
     this.setState({
       [name]: event.target.value
     })
+    if (this.props.doesLabelAlreadyExist) {
+      this.props.newValueThenWrongWasInserted();
+    }
   }
 
   render() {
@@ -52,6 +55,15 @@ class NewLabelDialog extends React.Component {
             <ColorSelecter
               onChange={this.handleInputChange('newLabelColor')}
               selectedColor={this.state.newLabelColor} />
+            {this.props.doesLabelAlreadyExist ?
+              <Typography className="with-margin-top" style={{
+                fontWeight: "600",
+                color: "#d32f2f"
+              }}>
+                Label name already exists.
+              </Typography>
+              :
+              null}
           </div>
         </DialogContent>
         <DialogActions>
