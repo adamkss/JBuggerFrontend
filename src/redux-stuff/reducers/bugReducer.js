@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED } from '../actions/actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG } from '../actions/actionTypes'
 
 const initialState = {
     statuses: [],
@@ -56,14 +56,17 @@ const filterBugs = function (bugs, filterString) {
 }
 
 const filterBugsByStatusByFilterString = (bugsByStatus, filterString) => {
-    let filteredBugsByStatus = {};
-    let filterStringUpperCase = filterString.toUpperCase();
+    if (filterString && filterString != "") {
+        let filteredBugsByStatus = {};
+        let filterStringUpperCase = filterString.toUpperCase();
 
-    Object.keys(bugsByStatus).forEach(key => {
-        filteredBugsByStatus[key] = bugsByStatus[key].filter(bug => bug.title.toUpperCase().includes(filterStringUpperCase));
-    });
+        Object.keys(bugsByStatus).forEach(key => {
+            filteredBugsByStatus[key] = bugsByStatus[key].filter(bug => bug.title.toUpperCase().includes(filterStringUpperCase));
+        });
 
-    return filteredBugsByStatus;
+        return filteredBugsByStatus;
+    }
+    return bugsByStatus;
 }
 
 const initializeBugMapFromArray = (statuses) => {
@@ -419,7 +422,7 @@ const bugReducer = (state = initialState, action) => {
                 ...state,
                 allBugs: newAllBugs,
                 bugsByStatus: bugsByStatus,
-                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus),
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: mapBugsToIdMap(newAllBugs),
                 activeBugToModify: {
                     ...state.activeBugToModify,
@@ -437,6 +440,19 @@ const bugReducer = (state = initialState, action) => {
             return {
                 ...state,
                 doesNewLabelAlreadyExist: false
+            }
+        }
+        case DELETE_CURRENTLY_ACTIVE_BUG: {
+            const newAllBugs = state.allBugs.filter(bug => bug.id !== state.activeBugToModify.id);
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, newAllBugs);
+            return {
+                ...state,
+                activeBugToModify: null,
+                activeBugToModifyID: null,
+                allBugs: newAllBugs,
+                bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
+                bugsById: mapBugsToIdMap(newAllBugs)
             }
         }
         default:

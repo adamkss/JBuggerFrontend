@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Typography, Input, Select, MenuItem, TextField, IconButton, CircularProgress } from '@material-ui/core';
+import { Typography, Input, Select, MenuItem, TextField, IconButton, CircularProgress, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import './BugDetailsModal.css';
-import { closeModal, getUserNames, getLabels, startUpdatingBugLabels, startDownloadingFile, startDeletingAttachment, addAttachmentInfo } from './redux-stuff/actions/actionCreators';
+import { closeModal, getUserNames, getLabels, startUpdatingBugLabels, startDownloadingFile, startDeletingAttachment, addAttachmentInfo, startDeletingCurrentBug } from './redux-stuff/actions/actionCreators';
 import BugDetailsSidebarSection from './BugDetailsSidebarSection';
 import History from './History';
 import LabelShort from './LabelShort';
@@ -14,6 +14,7 @@ import { uploadFile } from './utils/UploadHelper';
 import CreateCommentDialog from './popovers/CreateCommentDialog';
 import axios from 'axios';
 import { getMaximumAndMinimumCorrectedDate } from './utils/Validators';
+import ConfrimBugDeletionDialog from './popovers/ConfirmBugDeletionDialog';
 
 class BugDetailsModal extends PureComponent {
     state = {
@@ -35,6 +36,7 @@ class BugDetailsModal extends PureComponent {
         isAttachmentsInEditMode: false,
         comments: [],
         isCreateCommentDialogOpen: false,
+        isDeleteBugConfirmationDialogOpen: false,
         bugChanges: []
     }
 
@@ -72,32 +74,34 @@ class BugDetailsModal extends PureComponent {
     }
 
     componentDidUpdate(prevProps) {
-        if (prevProps.bug.id !== this.props.bug.id) {
-            this.resetAllSubsectionsToViewMode();
-            this.getCommentsForCurrentBug();
-            this.getHistoryForCurrentBug();
-        }
-        if ((prevProps.bug.id !== this.props.bug.id)
-            || (prevProps.labels !== this.props.labels)) {
-            this.calculateLabelsSelectionState();
-        }
-        if (prevProps.bug.assignedToUsername !== this.props.bug.assignedToUsername) {
-            this.getHistoryForCurrentBug();
-        }
-        if (prevProps.bug.severity !== this.props.bug.severity) {
-            this.getHistoryForCurrentBug();
-        }
-        if (prevProps.bug.revision !== this.props.bug.revision) {
-            this.getHistoryForCurrentBug();
-        }
-        if (prevProps.bug.targetDate !== this.props.bug.targetDate) {
-            this.getHistoryForCurrentBug();
-        }
-        if (prevProps.bug.description !== this.props.bug.description) {
-            this.getHistoryForCurrentBug();
-        }
-        if (prevProps.bug.attachmentsInfo !== this.props.bug.attachmentsInfo) {
-            this.getHistoryForCurrentBug();
+        if (this.props.bug) {
+            if (prevProps.bug.id !== this.props.bug.id) {
+                this.resetAllSubsectionsToViewMode();
+                this.getCommentsForCurrentBug();
+                this.getHistoryForCurrentBug();
+            }
+            if ((prevProps.bug.id !== this.props.bug.id)
+                || (prevProps.labels !== this.props.labels)) {
+                this.calculateLabelsSelectionState();
+            }
+            if (prevProps.bug.assignedToUsername !== this.props.bug.assignedToUsername) {
+                this.getHistoryForCurrentBug();
+            }
+            if (prevProps.bug.severity !== this.props.bug.severity) {
+                this.getHistoryForCurrentBug();
+            }
+            if (prevProps.bug.revision !== this.props.bug.revision) {
+                this.getHistoryForCurrentBug();
+            }
+            if (prevProps.bug.targetDate !== this.props.bug.targetDate) {
+                this.getHistoryForCurrentBug();
+            }
+            if (prevProps.bug.description !== this.props.bug.description) {
+                this.getHistoryForCurrentBug();
+            }
+            if (prevProps.bug.attachmentsInfo !== this.props.bug.attachmentsInfo) {
+                this.getHistoryForCurrentBug();
+            }
         }
     }
 
@@ -300,6 +304,27 @@ class BugDetailsModal extends PureComponent {
                 targetDateNew: null
             })
         }
+    }
+
+    onDeleteBugPress = () => {
+        this.setState({
+            isDeleteBugConfirmationDialogOpen: true
+        })
+    }
+
+    closeBugDeletionConfirmationDialog = () => {
+        this.setState({
+            isDeleteBugConfirmationDialogOpen: false
+        })
+    }
+
+    onCancelBugDeletion = () => {
+        this.closeBugDeletionConfirmationDialog();
+    }
+
+    onConfirmBugDeletion = () => {
+        this.props.dispatch(startDeletingCurrentBug(this.props.bug.id));
+        this.closeBugDeletionConfirmationDialog();
     }
 
     render() {
@@ -563,6 +588,37 @@ class BugDetailsModal extends PureComponent {
                                 <div className="sidebar__horizontal-separator" />
                                 <History
                                     changes={this.state.bugChanges} />
+
+                                <div className="sidebar__horizontal-separator" />
+                                <BugDetailsSidebarSection
+                                    sectionName="Operations"
+                                    isInEditMode={false}
+                                    noEditMode
+                                    renderViewControl={() => {
+                                        return (
+                                            <div className="flexbox-horizontal flexbox-justify-center">
+                                                <Button
+                                                    variant="contained"
+                                                    style={{
+                                                        backgroundColor: "#795548",
+                                                        color: "white",
+                                                        marginRight: "5px"
+                                                    }}>
+                                                    Close bug
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    style={{
+                                                        backgroundColor: "#D32F2F",
+                                                        color: "white"
+                                                    }}
+                                                    onClick={this.onDeleteBugPress}>
+                                                    Delete bug
+                                                </Button>
+                                            </div>
+                                        )
+                                    }}
+                                />
                             </main>
                         </div>
                         : ""}
@@ -578,6 +634,15 @@ class BugDetailsModal extends PureComponent {
                     :
                     null
                 }
+
+                {this.state.isDeleteBugConfirmationDialogOpen ?
+                    <ConfrimBugDeletionDialog
+                        onCancel={this.onCancelBugDeletion}
+                        onConfirm={this.onConfirmBugDeletion} />
+                    :
+                    null
+                }
+
             </>
         )
     }

@@ -20,7 +20,7 @@ export default class History extends Component {
                     null
                 }
                 {this.props.changes.map(change =>
-                    <div className="comment-shell">
+                    <div className="comment-shell" key={change.id}>
                         <header className="flexbox-horizontal">
                             <Typography className="flex-grow sidebar__detail-info">
                                 {change.changeAuthor.name}
