@@ -15,6 +15,7 @@ import CreateCommentDialog from './popovers/CreateCommentDialog';
 import axios from 'axios';
 import { getMaximumAndMinimumCorrectedDate } from './utils/Validators';
 import ConfrimBugDeletionDialog from './popovers/ConfirmBugDeletionDialog';
+import NewBugTitleDialog from './popovers/NewBugTitleDialog';
 
 class BugDetailsModal extends PureComponent {
     state = {
@@ -37,7 +38,8 @@ class BugDetailsModal extends PureComponent {
         comments: [],
         isCreateCommentDialogOpen: false,
         isDeleteBugConfirmationDialogOpen: false,
-        bugChanges: []
+        bugChanges: [],
+        isNewBugTitleDialogOpen: false
     }
 
     constructor(props) {
@@ -327,6 +329,30 @@ class BugDetailsModal extends PureComponent {
         this.closeBugDeletionConfirmationDialog();
     }
 
+    onBugRenameClick = () => {
+        this.setState({
+            isNewBugTitleDialogOpen: true
+        })
+    }
+
+    closeEditBugTitleDialog = () => {
+        this.setState({
+            isNewBugTitleDialogOpen: false
+        })
+    }
+
+    onConfirmBugTitleRename = (newBugTitle) => {
+        this.props.onBugEdit({
+            ...this.props.bug,
+            title: newBugTitle
+        })
+        this.closeEditBugTitleDialog();
+    }
+
+    onCancelBugTitleRename = () => {
+        this.closeEditBugTitleDialog();
+    }
+
     render() {
         let extraClassIfOpen = this.state.open && !this.props.mustClose ? " modal-expanded" : "";
         return (
@@ -337,7 +363,11 @@ class BugDetailsModal extends PureComponent {
                         <div className="sidebar">
                             <header className="modal__header">
                                 <div className="header__bug-info">
-                                    <Typography variant="subtitle2" color="inherit">
+                                    <Typography
+                                        variant="subtitle2"
+                                        color="inherit"
+                                        onClick={this.onBugRenameClick}
+                                        className="sidebar__edit-button">
                                         {this.props.bug.title}
                                     </Typography>
                                     <Typography variant="caption" color="inherit">
@@ -643,6 +673,13 @@ class BugDetailsModal extends PureComponent {
                     null
                 }
 
+                {this.state.isNewBugTitleDialogOpen ?
+                    <NewBugTitleDialog
+                        initialBugTitle={this.props.bug.title}
+                        onConfirm={this.onConfirmBugTitleRename}
+                        onCancel={this.onCancelBugTitleRename} />
+                    :
+                    null}
             </>
         )
     }
