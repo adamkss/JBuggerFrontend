@@ -17,7 +17,7 @@ import './Login.css';
 import love from './assets/love.png';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { loginSuccessfull, tryLogin } from './redux-stuff/actions/actionCreators';
+import { tryLogin } from './redux-stuff/actions/actionCreators';
 
 const styles = theme => ({
   paper: {

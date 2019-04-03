@@ -631,7 +631,7 @@ class BugDetailsModal extends PureComponent {
                                     renderViewControl={() => {
                                         return (
                                             <div className="flexbox-horizontal flexbox-justify-center">
-                                                {this.props.bug.status !== "CLOSED" ?
+                                                {this.props.bug.status !== "CLOSED" && this.props.isProjectManager ?
                                                     <Button
                                                         variant="contained"
                                                         style={{
@@ -701,7 +701,8 @@ const mapStateToProps = state => ({
     usernames: state.bugs.usernames,
     severities: state.bugs.severities,
     labels: state.bugs.labels,
-    currentlyLoggedInUsername: state.security.username
+    currentlyLoggedInUsername: state.security.username,
+    isProjectManager: state.security.isPM
 });
 
 export default connect(mapStateToProps)(BugDetailsModal);

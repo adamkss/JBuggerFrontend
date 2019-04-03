@@ -11,24 +11,26 @@ import { BrowserRouter } from 'react-router-dom';
 
 import thunk from 'redux-thunk';
 import axios from 'axios';
-import { tokenExpired, announceTokenExpired } from './redux-stuff/actions/actionCreators';
+import { announceTokenExpired } from './redux-stuff/actions/actionCreators';
+import jwtDecode from 'jwt-decode';
+import {getRolesFromInitialRole} from './utils/RolesHelper';
+import {initialState} from './redux-stuff/reducers/securityReducer';
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const initialStateSecurityReducer = {
-    loggedIn: false,
-    username: null,
-    loggedInUserName: null,
-    token: null,
-    isUsernameOrPasswordIncorrect: false,
-    isTokenExpired: false
-}
-
 const existingToken = localStorage.getItem('token');
 
+let initialSecurityState = initialState;
+
 if (existingToken) {
-    initialStateSecurityReducer.loggedIn = true;
-    initialStateSecurityReducer.token = existingToken;
+    initialSecurityState.loggedIn = true;
+    initialSecurityState.token = existingToken;
+    initialSecurityState.roles = jwtDecode(existingToken).roles;
+    initialSecurityState = {
+        ...initialSecurityState,
+        ...getRolesFromInitialRole(initialSecurityState.roles[0])
+    };
+
     axios.defaults.headers.common = { 'Authorization': `Bearer ${existingToken}` };
     axios.interceptors.response.use(null, function (error) {
         if (error.response.status === 401) {
@@ -48,7 +50,7 @@ const rootReducer = combineReducers({
 const store = createStore(
     rootReducer,
     {
-        security: initialStateSecurityReducer
+        security: initialSecurityState
     },
     composeEnhancers(applyMiddleware(thunk))
 );
