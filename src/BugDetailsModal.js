@@ -631,17 +631,21 @@ class BugDetailsModal extends PureComponent {
                                     renderViewControl={() => {
                                         return (
                                             <div className="flexbox-horizontal flexbox-justify-center">
-                                                <Button
-                                                    variant="contained"
-                                                    style={{
-                                                        backgroundColor: "#795548",
-                                                        color: "white",
-                                                        marginRight: "5px",
-                                                        marginBottom: "10px"
-                                                    }}
-                                                    onClick={this.onBugClosePress}>
-                                                    Close bug
+                                                {this.props.bug.status !== "CLOSED" ?
+                                                    <Button
+                                                        variant="contained"
+                                                        style={{
+                                                            backgroundColor: "#795548",
+                                                            color: "white",
+                                                            marginRight: "5px",
+                                                            marginBottom: "10px"
+                                                        }}
+                                                        onClick={this.onBugClosePress}>
+                                                        Close bug
                                                 </Button>
+                                                    :
+                                                    null
+                                                }
                                                 <Button
                                                     variant="contained"
                                                     style={{
