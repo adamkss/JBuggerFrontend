@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Typography, Input, Select, MenuItem, TextField, IconButton, CircularProgress, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import './BugDetailsModal.css';
-import { closeModal, getUserNames, getLabels, startUpdatingBugLabels, startDownloadingFile, startDeletingAttachment, addAttachmentInfo, startDeletingCurrentBug } from './redux-stuff/actions/actionCreators';
+import { closeModal, getUserNames, getLabels, startUpdatingBugLabels, startDownloadingFile, startDeletingAttachment, addAttachmentInfo, startDeletingCurrentBug, startClosingCurrentBug } from './redux-stuff/actions/actionCreators';
 import BugDetailsSidebarSection from './BugDetailsSidebarSection';
 import History from './History';
 import LabelShort from './LabelShort';
@@ -353,6 +353,10 @@ class BugDetailsModal extends PureComponent {
         this.closeEditBugTitleDialog();
     }
 
+    onBugClosePress = () => {
+        this.props.dispatch(startClosingCurrentBug(this.props.bug.id));
+    }
+
     render() {
         let extraClassIfOpen = this.state.open && !this.props.mustClose ? " modal-expanded" : "";
         return (
@@ -632,15 +636,18 @@ class BugDetailsModal extends PureComponent {
                                                     style={{
                                                         backgroundColor: "#795548",
                                                         color: "white",
-                                                        marginRight: "5px"
-                                                    }}>
+                                                        marginRight: "5px",
+                                                        marginBottom: "10px"
+                                                    }}
+                                                    onClick={this.onBugClosePress}>
                                                     Close bug
                                                 </Button>
                                                 <Button
                                                     variant="contained"
                                                     style={{
                                                         backgroundColor: "#D32F2F",
-                                                        color: "white"
+                                                        color: "white",
+                                                        marginBottom: "10px"
                                                     }}
                                                     onClick={this.onDeleteBugPress}>
                                                     Delete bug

@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG } from '../actions/actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG, CLOSE_CURRENT_BUG } from '../actions/actionTypes'
 
 const initialState = {
     statuses: [],
@@ -274,7 +274,6 @@ const bugReducer = (state = initialState, action) => {
                 movingBugNewStatus: newStatus
             }
         }
-
         case MOVE_BUG_VISUALLY: {
             if (action.data.oldStatus === action.data.newStatus)
                 return {
@@ -453,6 +452,23 @@ const bugReducer = (state = initialState, action) => {
                 bugsByStatus,
                 bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
                 bugsById: mapBugsToIdMap(newAllBugs)
+            }
+        }
+        case CLOSE_CURRENT_BUG: {
+            let allBugsWithoutModified = [...state.allBugs.filter(bug => bug.id != state.activeBugToModify.id)];
+            let modifiedBug = {
+                ...state.activeBugToModify,
+                status: "CLOSED"
+            };
+            let allBugs = [...allBugsWithoutModified, modifiedBug];
+
+            const bugsByStatus = mapBugsToObjectByStatus(state.statuses, allBugs);
+            return {
+                ...state,
+                allBugs: allBugs,
+                bugsByStatus: bugsByStatus,
+                bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
+                bugsById: getBugsMapWithNewBug(state.bugsById, modifiedBug)
             }
         }
         default:
