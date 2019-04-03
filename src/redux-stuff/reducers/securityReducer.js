@@ -2,7 +2,7 @@ import { LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED } from
 import { getRolesFromInitialRole } from '../../utils/RolesHelper';
 import jwtDecode from 'jwt-decode';
 
-export const initialState = {
+export const getInitialState = () =>  ({
     loggedIn: false,
     username: null,
     loggedInUserName: null,
@@ -15,7 +15,7 @@ export const initialState = {
     isTM: false,
     isDev: false,
     isTester: false
-}
+});
 
 const securityReducer = (state = {}, action) => {
     switch (action.type) {
@@ -49,7 +49,7 @@ const securityReducer = (state = {}, action) => {
                 isTokenExpired: false
             }
         case TOKEN_EXPIRED:
-            return initialState;
+            return getInitialState();
         default: return state;
     }
 
