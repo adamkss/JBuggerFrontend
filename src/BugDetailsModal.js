@@ -642,20 +642,24 @@ class BugDetailsModal extends PureComponent {
                                                         }}
                                                         onClick={this.onBugClosePress}>
                                                         Close bug
-                                                </Button>
+                                                    </Button>
                                                     :
                                                     null
                                                 }
-                                                <Button
-                                                    variant="contained"
-                                                    style={{
-                                                        backgroundColor: "#D32F2F",
-                                                        color: "white",
-                                                        marginBottom: "10px"
-                                                    }}
-                                                    onClick={this.onDeleteBugPress}>
-                                                    Delete bug
-                                                </Button>
+                                                {this.props.isProjectManager ?
+                                                    <Button
+                                                        variant="contained"
+                                                        style={{
+                                                            backgroundColor: "#D32F2F",
+                                                            color: "white",
+                                                            marginBottom: "10px"
+                                                        }}
+                                                        onClick={this.onDeleteBugPress}>
+                                                        Delete bug
+                                                    </Button>
+                                                    :
+                                                    null
+                                                }
                                             </div>
                                         )
                                     }}

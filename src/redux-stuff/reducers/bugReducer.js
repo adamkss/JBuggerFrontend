@@ -468,7 +468,9 @@ const bugReducer = (state = initialState, action) => {
                 allBugs: allBugs,
                 bugsByStatus: bugsByStatus,
                 bugsByStatusFiltered: filterBugsByStatusByFilterString(bugsByStatus, state.filterString),
-                bugsById: getBugsMapWithNewBug(state.bugsById, modifiedBug)
+                bugsById: getBugsMapWithNewBug(state.bugsById, modifiedBug),
+                activeBugToModifyID: null,
+                activeBugToModify: null,
             }
         }
         default:
