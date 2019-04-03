@@ -23,7 +23,7 @@ class NewLabelDialog extends React.Component {
   };
 
   handleOk = () => {
-    this.props.onConfirm(this.state.newLabelName, this.state.newLabelColor);
+    this.props.onConfirm(this.state.newLabelName, this.state.newLabelColor || "#4527a0");
   };
 
   handleInputChange = name => event => {
