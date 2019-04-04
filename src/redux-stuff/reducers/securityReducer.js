@@ -2,7 +2,7 @@ import { LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED } from
 import { getRolesFromInitialRole } from '../../utils/RolesHelper';
 import jwtDecode from 'jwt-decode';
 
-export const getInitialState = () =>  ({
+export const getInitialState = () => ({
     loggedIn: false,
     username: null,
     loggedInUserName: null,
@@ -14,7 +14,8 @@ export const getInitialState = () =>  ({
     isPM: false,
     isTM: false,
     isDev: false,
-    isTester: false
+    isTester: false,
+    predefinedRoles: ["ROLE_TEST", "ROLE_DEV", "ROLE_TM", "ROLE_PM", "ROLE_ADM"]
 });
 
 const securityReducer = (state = {}, action) => {

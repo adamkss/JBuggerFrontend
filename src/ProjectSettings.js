@@ -2,27 +2,35 @@ import React, { Component } from 'react'
 import './ProjectSettings.css';
 
 import { connect } from 'react-redux';
-import { Paper, Typography, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox } from '@material-ui/core';
+import { Paper, Input, Button, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Select, MenuItem } from '@material-ui/core';
 
 import ProjectSettingsSection from './ProjectSettingsSection';
 import LabelShort from './LabelShort';
 import NewLabelDialog from './popovers/NewLabelDialog';
 import { createNewLabel, startCreatingNewLabel, labelCreationAbandoned } from './redux-stuff/actions/actionCreators';
 import axios from 'axios';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import Dialog from '@material-ui/core/Dialog';
 class ProjectSettings extends Component {
     state = {
         isNewLabelDialogOpen: false,
+        isCreateUserDialogOpen: false,
         allUsers: []
     }
 
+    loadUsers = () => {
+        axios.get("http://localhost:8080/users/adminInfo")
+            .then(({ data }) => {
+                this.setState({
+                    allUsers: data
+                })
+            })
+    }
     componentDidMount = () => {
         if (this.props.isUserPM) {
-            axios.get("http://localhost:8080/users/adminInfo")
-                .then(({ data }) => {
-                    this.setState({
-                        allUsers: data
-                    })
-                })
+            this.loadUsers();
         }
     }
 
@@ -51,6 +59,30 @@ class ProjectSettings extends Component {
         this.props.dispatch(labelCreationAbandoned());
     }
 
+    onCreateUserPress = () => {
+        this.setState({
+            isCreateUserDialogOpen: true
+        })
+    }
+
+    closeCreateUserDialog = () => {
+        this.setState({
+            isCreateUserDialogOpen: false
+        })
+    }
+
+    onCreateUserConfirm = (newUser) => {
+        axios.post("http://localhost:8080/users", newUser)
+            .then(({ data: newUser }) => {
+                this.loadUsers();
+            })
+        this.closeCreateUserDialog();
+    }
+
+    onCreateUserCancel = () => {
+        this.closeCreateUserDialog();
+    }
+
     render() {
         return (
             <>
@@ -64,7 +96,7 @@ class ProjectSettings extends Component {
                     </ProjectSettingsSection>
 
                     {this.props.isUserPM ?
-                        <ProjectSettingsSection sectionName="Users">
+                        <ProjectSettingsSection sectionName="Users" verticalContent>
                             <Paper style={{
                                 maxHeight: "600px",
                                 overflow: "auto",
@@ -105,6 +137,9 @@ class ProjectSettings extends Component {
                                     </TableBody>
                                 </Table>
                             </Paper>
+                            <div>
+                                <Button variant="contained" style={{ marginTop: "10px" }} onClick={this.onCreateUserPress} >Create user</Button>
+                            </div>
                         </ProjectSettingsSection>
                         :
                         null
@@ -121,6 +156,15 @@ class ProjectSettings extends Component {
                     null
                 }
 
+                {this.state.isCreateUserDialogOpen ?
+                    <NewUserDialog
+                        onConfirm={this.onCreateUserConfirm}
+                        onCancel={this.onCreateUserCancel}
+                        roles={this.props.predefinedRoles}
+                    />
+                    :
+                    null
+                }
             </>
         )
     }
@@ -129,7 +173,93 @@ class ProjectSettings extends Component {
 const mapStateToProps = state => ({
     labels: state.bugs.labels,
     doesNewLabelAlreadyExist: state.bugs.doesNewLabelAlreadyExist,
-    isUserPM: state.security.isPM
+    isUserPM: state.security.isPM,
+    predefinedRoles: state.security.predefinedRoles
 });
 
 export default connect(mapStateToProps)(ProjectSettings);
+
+class NewUserDialog extends React.PureComponent {
+    state = {
+        name: '',
+        email: '',
+        phoneNumber: '',
+        role: '',
+        password: ''
+    }
+
+    handleCancel = () => {
+        this.props.onCancel();
+    };
+
+    handleOk = () => {
+        this.props.onConfirm({
+            name: this.state.name,
+            email: this.state.email,
+            phoneNumber: this.state.phoneNumber,
+            role: this.state.role,
+            password: this.state.password
+        });
+    };
+
+    handleInputChange = inputName => event => {
+        this.setState({
+            [inputName]: event.target.value
+        })
+    }
+
+    render() {
+        return (
+            <Dialog
+                disableBackdropClick
+                disableEscapeKeyDown
+                maxWidth="md"
+                aria-labelledby="confirmation-dialog-title"
+                open={true}
+            >
+                <DialogTitle id="confirmation-dialog-title">Add user</DialogTitle>
+                <DialogContent>
+                    <div className="flexbox-vertical-centered">
+                        <Input
+                            value={this.state.name}
+                            placeholder="Name:"
+                            onChange={this.handleInputChange('name')} />
+                        <Input
+                            value={this.state.email}
+                            placeholder="Email:"
+                            onChange={this.handleInputChange('email')} />
+                        <Input
+                            value={this.state.phoneNumber}
+                            placeholder="Phone number:"
+                            onChange={this.handleInputChange('phoneNumber')} />
+                        <Select
+                            value={this.state.role}
+                            onChange={this.handleInputChange('role')}
+                            style={{
+                                width: "100%"
+                            }}
+                        >
+                            {this.props.roles.map(role =>
+                                <MenuItem key={role} value={role}>{role}</MenuItem>
+                            )}
+                        </Select>
+                        <Input
+                            value={this.state.password}
+                            placeholder="Password:"
+                            onChange={this.handleInputChange('password')} />
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={this.handleCancel} color="primary">
+                        Cancel
+                     </Button>
+                    <Button
+                        onClick={this.handleOk}
+                        color="primary">
+                        Ok
+                     </Button>
+                </DialogActions>
+            </Dialog>
+        )
+    }
+}

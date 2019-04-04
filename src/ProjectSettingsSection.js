@@ -16,7 +16,12 @@ export default class ProjectSettingsSection extends Component {
                         {this.props.children}
                     </div>
                     :
-                    this.props.children
+                    this.props.verticalContent ?
+                        <div className="flexbox-vertical">
+                            {this.props.children}
+                        </div>
+                        :
+                        this.props.children
                 }
             </section>
         )
