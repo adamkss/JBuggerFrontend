@@ -98,7 +98,8 @@ class ProjectSettings extends Component {
                     {this.props.isUserPM ?
                         <ProjectSettingsSection sectionName="Users" verticalContent>
                             <Paper style={{
-                                maxHeight: "600px",
+                                maxHeight: "400px",
+                                height: "40vh",
                                 overflow: "auto",
                                 maxWidth: "1250px",
                                 marginTop: "10px"
