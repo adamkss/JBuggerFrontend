@@ -60,6 +60,9 @@ const styles = theme => ({
     },
     content: {
         flexGrow: 1,
+        overflowY:"auto",
+        overflowX: "hidden",
+        height: "100vh"
         // padding: theme.spacing.unit * 3,
     },
     toolbar: theme.mixins.toolbar,
