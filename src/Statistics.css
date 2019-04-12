@@ -8,3 +8,11 @@
     height:25px;
     border-radius:10px;
 }
+
+.status-state{
+    display: flex;
+    flex-direction: row;
+    font-size: 21px;
+    align-items: baseline;
+    justify-content: center;
+}

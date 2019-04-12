@@ -34,7 +34,7 @@ import Grid from '@material-ui/core/Grid';
 import GenericModal from './GenericModal';
 import CreateSwimLaneModalContent from './CreateSwimLaneModalContent';
 import { connect } from 'react-redux';
-import { startCreatingNewSwimLane, getLabels, logout } from './redux-stuff/actions/actionCreators';
+import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses } from './redux-stuff/actions/actionCreators';
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
 
@@ -130,6 +130,7 @@ class ResponsiveDrawer extends React.Component {
 
     componentDidMount() {
         this.props.dispatch(getLabels());
+        this.props.dispatch(getAllStatuses());
     }
 
     handleDrawerToggle = () => {

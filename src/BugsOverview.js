@@ -97,8 +97,6 @@ class BugsOverview extends Component {
     this.setState({
       isLoading: true
     })
-
-    this.props.dispatch(getAllStatuses());
   }
 
   handleNewBugPopoverClose = () => {

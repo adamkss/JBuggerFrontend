@@ -8,6 +8,8 @@ import './Statistics.css';
 import ProjectSettingsSection from './ProjectSettingsSection';
 import AnimatedNumber from 'react-animated-number';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import ArrowForward from '@material-ui/icons/ArrowForward';
+import { connect } from 'react-redux';
 
 const LabelOpacityController = styled.div`
     opacity: ${props => props.isActive ? "1" : "0.5"};
@@ -28,7 +30,7 @@ const data = [
         name: 'Page D', uv: 400
     }
 ];
-export default class Statistics extends PureComponent {
+class Statistics extends PureComponent {
 
     state = {
         statisticsByLabels: [],
@@ -137,12 +139,18 @@ export default class Statistics extends PureComponent {
                         :
                         null
                     }
-                    <ClosedBugsListWithTable bugs={this.state.closeTimeStatistics.bugStatistics} />
+                    <ClosedBugsListWithTable
+                        bugs={this.state.closeTimeStatistics.bugStatistics}
+                        statuses={this.props.statuses} />
                 </ProjectSettingsSection>
             </div>
         )
     }
 }
+
+export default connect(state => ({
+    statuses: state.bugs.statuses
+}))(Statistics);
 
 const timeUnitsColors = {
     Minutes: "#7b1fa2",
@@ -222,33 +230,104 @@ class ClosedTimeStatistics extends React.PureComponent {
 }
 
 class ClosedBugsListWithTable extends React.PureComponent {
+    state = {
+        statusChangesOfBug: []
+    }
+
+    getOnBugClickHandler = bugId => event => {
+        axios.get(`http://localhost:8080/bugs/bug/${bugId}/history/statuses`)
+            .then(({ data }) => {
+                this.setState({
+                    statusChangesOfBug: data
+                })
+            })
+    }
+
+    getStatusColorForStatus = (statusName) => {
+        console.log(this.props.statuses)
+        const status = this.props.statuses.filter(status => status.statusName === statusName);
+        return status[0].statusColor;
+    }
     render() {
         return (
             <Paper style={{
+                minWidth: "60vw"
             }}>
-                <LineChart
-                    layout="horizontal"
-                    width={500}
-                    height={300}
-                    data={data}
-                    margin={{
-                        top: 20, right: 30, left: 20, bottom: 5,
-                    }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" domain={[0, 500]} />
-                    <YAxis dataKey="name" type="category" domain={[0, 500]} />
-                    <Tooltip />
-                    <Line dataKey="uv" stroke="#82ca9d" />
-                </LineChart>
+                {this.state.statusChangesOfBug.length > 0 ?
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "baseline",
+                        padding: "5px"
+
+                    }}>
+                        {this.state.statusChangesOfBug.reverse().map((statusChange, index) =>
+                            <MountingDelay timeout={(index) * 100} key={Math.random()}>
+                                <div className="status-state">
+                                    {index !== 0 ?
+                                        <div style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            marginRight: "10px",
+                                            marginLeft: "10px"
+                                        }}>
+                                            <ArrowForward />
+                                            <Typography style={{
+                                                fontWeight: "300"
+                                            }}>
+                                                {statusChange.timeOfChangeHappening.split(' ')[0]}
+                                            </Typography>
+                                            <Typography style={{
+                                                fontWeight: "300"
+                                            }}>
+                                                {statusChange.timeOfChangeHappening.split(' ')[1]}
+                                            </Typography>
+                                        </div>
+                                        :
+                                        null
+                                    }
+                                    <span style={{
+                                        color: this.getStatusColorForStatus(statusChange.newValue)
+                                    }}>{statusChange.newValue}</span>
+                                </div>
+                            </MountingDelay>
+                        )}
+                    </div>
+                    :
+                    null}
                 <List component="nav">
                     {this.props.bugs.map(bug =>
-                        <ListItem key={bug.bugId} button>
+                        <ListItem key={bug.bugId} button onClick={this.getOnBugClickHandler(bug.bugId)}>
                             <ListItemText primary={bug.bugTitle}></ListItemText>
                         </ListItem>
                     )}
                 </List>
             </Paper>
         )
+    }
+}
+
+class MountingDelay extends React.PureComponent {
+    state = {
+        isVisible: false
+    }
+    componentDidMount() {
+        setTimeout(() => {
+            this.setState({
+                isVisible: true
+            })
+        }, this.props.timeout);
+    }
+    render() {
+        const style = {
+            transition: "opacity 2s",
+            opacity: this.state.isVisible ? "1" : "0"
+        }
+        return <div style={style}>
+            {this.props.children}
+        </div>
     }
 }
