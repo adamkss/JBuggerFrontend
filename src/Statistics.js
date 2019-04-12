@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import BarChart from './BarChart';
 import PieChart from './PieChart/index';
 import styled from 'styled-components';
-import { Typography, Paper, List, ListItem, ListItemText } from '@material-ui/core';
+import { Typography, Paper, List, ListItem, ListItemText, Divider } from '@material-ui/core';
 import axios from 'axios';
 import './Statistics.css';
 import ProjectSettingsSection from './ProjectSettingsSection';
@@ -10,6 +10,8 @@ import AnimatedNumber from 'react-animated-number';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { connect } from 'react-redux';
+import LabelShort from './LabelShort';
+import { getIconForSeverity } from './BugShortOverview';
 
 const LabelOpacityController = styled.div`
     opacity: ${props => props.isActive ? "1" : "0.5"};
@@ -139,9 +141,12 @@ class Statistics extends PureComponent {
                         :
                         null
                     }
-                    <ClosedBugsListWithTable
-                        bugs={this.state.closeTimeStatistics.bugStatistics}
-                        statuses={this.props.statuses} />
+                    {this.state.closeTimeStatistics.bugStatistics.length > 0 ?
+                        <ClosedBugsListWithTable
+                            bugs={this.state.closeTimeStatistics.bugStatistics}
+                            statuses={this.props.statuses} />
+                        :
+                        null}
                 </ProjectSettingsSection>
             </div>
         )
@@ -223,6 +228,16 @@ class ClosedTimeStatistics extends React.PureComponent {
                     }}>
                         {this.state.currentUnitOfAverageTime}
                     </Typography>
+                    {this.props.afterTitle ?
+                        <Typography style={{
+                            fontSize: "30px",
+                            fontWeight: 300,
+                            paddingLeft: "10px"
+                        }}>
+                            {this.props.afterTitle}
+                        </Typography>
+                        :
+                        null}
                 </section>
             </ClosedTimeStatisticsWrapper>
         )
@@ -231,24 +246,42 @@ class ClosedTimeStatistics extends React.PureComponent {
 
 class ClosedBugsListWithTable extends React.PureComponent {
     state = {
-        statusChangesOfBug: []
+        statusChangesOfBug: [],
+        selectedBugId: null,
+        selectedBugClosedIn: {
+            minutes: 0,
+            hours: 0,
+            days: 0
+        },
+        selectedBugAuthor: null
     }
 
-    getOnBugClickHandler = bugId => event => {
-        axios.get(`http://localhost:8080/bugs/bug/${bugId}/history/statuses`)
+    componentDidMount() {
+        this.getOnBugClickHandler(this.props.bugs[0])();
+    }
+
+    getOnBugClickHandler = bug => event => {
+        axios.get(`http://localhost:8080/bugs/bug/${bug.bugId}/history/statuses`)
             .then(({ data }) => {
                 this.setState({
-                    statusChangesOfBug: data
+                    statusChangesOfBug: data,
+                    selectedBugId: bug.bugId,
+                    selectedBugClosedIn: {
+                        minutes: bug.durationMinutes,
+                        hours: bug.durationHours,
+                        days: bug.durationDays
+                    },
+                    selectedBugAuthor: bug.closedByUserName
                 })
             })
     }
 
     getStatusColorForStatus = (statusName) => {
-        console.log(this.props.statuses)
         const status = this.props.statuses.filter(status => status.statusName === statusName);
         return status[0].statusColor;
     }
     render() {
+        const cronologicallyOrderedChanges = this.state.statusChangesOfBug.reverse();
         return (
             <Paper style={{
                 minWidth: "60vw"
@@ -262,33 +295,38 @@ class ClosedBugsListWithTable extends React.PureComponent {
                         padding: "5px"
 
                     }}>
-                        {this.state.statusChangesOfBug.reverse().map((statusChange, index) =>
-                            <MountingDelay timeout={(index) * 100} key={Math.random()}>
+                        <MountingDelay timeout={0} key={Math.random()}>
+                            <div className="status-state">
+                                <span style={{
+                                    color: this.getStatusColorForStatus(cronologicallyOrderedChanges[0].oldValue)
+                                }}>{cronologicallyOrderedChanges[0].oldValue}</span>
+                            </div>
+                        </MountingDelay>
+                        {cronologicallyOrderedChanges.map((statusChange, index) =>
+                            <MountingDelay timeout={(index + 1) * 100} key={Math.random()}>
                                 <div className="status-state">
-                                    {index !== 0 ?
-                                        <div style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            marginRight: "10px",
-                                            marginLeft: "10px"
+                                    <div style={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        marginRight: "10px",
+                                        marginLeft: "10px"
+                                    }}>
+                                        <ArrowForward />
+                                        <Typography style={{
+                                            fontWeight: "300",
+                                            opacity: 0.6
                                         }}>
-                                            <ArrowForward />
-                                            <Typography style={{
-                                                fontWeight: "300"
-                                            }}>
-                                                {statusChange.timeOfChangeHappening.split(' ')[0]}
-                                            </Typography>
-                                            <Typography style={{
-                                                fontWeight: "300"
-                                            }}>
-                                                {statusChange.timeOfChangeHappening.split(' ')[1]}
-                                            </Typography>
-                                        </div>
-                                        :
-                                        null
-                                    }
+                                            {statusChange.timeOfChangeHappening.split(' ')[0]}
+                                        </Typography>
+                                        <Typography style={{
+                                            fontWeight: "300",
+                                            opacity: 0.6
+                                        }}>
+                                            {statusChange.timeOfChangeHappening.split(' ')[1]}
+                                        </Typography>
+                                    </div>
                                     <span style={{
                                         color: this.getStatusColorForStatus(statusChange.newValue)
                                     }}>{statusChange.newValue}</span>
@@ -298,10 +336,36 @@ class ClosedBugsListWithTable extends React.PureComponent {
                     </div>
                     :
                     null}
+                <Divider />
+                {this.state.selectedBugId ?
+                    <ClosedTimeStatistics
+                        title="Closed in:"
+                        afterTitle={` by ${this.state.selectedBugAuthor}`}
+                        toCloseMinutes={this.state.selectedBugClosedIn.minutes}
+                        toCloseDays={this.state.selectedBugClosedIn.days}
+                        toCloseHours={this.state.selectedBugClosedIn.hours} />
+                    :
+                    null}
                 <List component="nav">
                     {this.props.bugs.map(bug =>
-                        <ListItem key={bug.bugId} button onClick={this.getOnBugClickHandler(bug.bugId)}>
-                            <ListItemText primary={bug.bugTitle}></ListItemText>
+                        <ListItem
+                            selected={bug.bugId === this.state.selectedBugId}
+                            key={bug.bugId}
+                            button
+                            onClick={this.getOnBugClickHandler(bug)}>
+                            {getIconForSeverity(bug.severity)}
+                            <ListItemText
+                                primary={`#${bug.bugId} ${bug.bugTitle}`}
+                                secondary={`Closed by: ${bug.closedByUserName} at ${bug.closedDateTime}`}>
+                            </ListItemText>
+                            <div className="flexbox-horizontal flex-wrap">
+                                {bug.labels.map(label =>
+                                    <LabelShort
+                                        key={label.labelName}
+                                        text={label.labelName}
+                                        backgroundColor={label.backgroundColor}
+                                        smallMarginBottom />)}
+                            </div>
                         </ListItem>
                     )}
                 </List>
@@ -323,7 +387,7 @@ class MountingDelay extends React.PureComponent {
     }
     render() {
         const style = {
-            transition: "opacity 2s",
+            transition: "opacity 0.7s",
             opacity: this.state.isVisible ? "1" : "0"
         }
         return <div style={style}>

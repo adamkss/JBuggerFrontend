@@ -13,7 +13,7 @@ import HighSign from './assets/severitySVGs/HighSign';
 import MediumSign from './assets/severitySVGs/MediumSign';
 import LowSign from './assets/severitySVGs/LowSign';
 
-const getIconForSeverity = severity => {
+export const getIconForSeverity = severity => {
   switch(severity){
     case "LOW" : return <LowSign/>;
     case "MEDIUM": return <MediumSign/>;
