@@ -10,9 +10,19 @@ export default class Comment extends Component {
                     <Typography className="flex-grow sidebar__detail-info">{this.props.author}</Typography>
                     <Typography className="sidebar__detail-info">{this.props.createdDateTime.replace("T", " ")}</Typography>
                 </header>
-                <Typography className="white-space-pre">
+                {/* <Typography className="white-space-pre">
                     {this.props.commentText}
-                </Typography>
+                </Typography> */}
+                <div className="comment-parts">
+                    {this.props.commentTextParts.map(commentPart => {
+                        if (!commentPart.userRelevant) {
+                            return <span key={commentPart.id}>{commentPart.content}</span>
+                        }
+                        else {
+                            return <span className="user-mention" key={commentPart.id}>{commentPart.content}</span>
+                        }
+                    })}
+                </div>
             </div>
         )
     }

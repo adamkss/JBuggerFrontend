@@ -52,7 +52,7 @@ const getPostitionAfterAtSignBeforeLastWord = (text, lastPosition) => {
     if (text[i] === '@') {
       return i + 1;
     }
-    if (text[i] === ' ' || text[i] === '\n' || text[i] === '\r\n')
+    if ('\r\n ,.-/+*'.includes(text[i]))
       break;
     i--;
   }

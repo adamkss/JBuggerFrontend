@@ -26,6 +26,7 @@ export default class Comments extends Component {
                     <Comment
                         key={comment.id}
                         commentText={comment.comment}
+                        commentTextParts={comment.partialCommentUserMentions}
                         author={comment.author.name}
                         createdDateTime={comment.createdDateTime} />
                 )}
