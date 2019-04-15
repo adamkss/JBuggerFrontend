@@ -37,6 +37,7 @@ import { connect } from 'react-redux';
 import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses } from './redux-stuff/actions/actionCreators';
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
+import axios from 'axios';
 
 const drawerWidth = 240;
 
@@ -60,7 +61,7 @@ const styles = theme => ({
     },
     content: {
         flexGrow: 1,
-        overflowY:"auto",
+        overflowY: "auto",
         overflowX: "hidden",
         height: "100vh"
         // padding: theme.spacing.unit * 3,
@@ -125,12 +126,23 @@ class ResponsiveDrawer extends React.Component {
         mobileMoreAnchorEl: null,
         anchorEl: null,
         modalOpened: false,
-        modalType: null
+        modalType: null,
+        numberOfNotifications: 0
     };
 
     componentDidMount() {
         this.props.dispatch(getLabels());
         this.props.dispatch(getAllStatuses());
+        const queryNotificationsCount = () => {
+            axios.get("http://localhost:8080/users/current/notifications/count")
+            .then(({ data: newNumberOfNotifications }) => {
+                this.setState({
+                    numberOfNotifications: newNumberOfNotifications
+                })
+            })
+        };
+        queryNotificationsCount();
+        setInterval(queryNotificationsCount, 2000);
     }
 
     handleDrawerToggle = () => {
@@ -143,9 +155,6 @@ class ResponsiveDrawer extends React.Component {
 
     handleMenuClose = () => {
         this.setState({ anchorEl: null });
-        this.setState({
-            modalOpened: true
-        })
     };
 
     handleMobileMenuOpen = event => {
@@ -180,6 +189,9 @@ class ResponsiveDrawer extends React.Component {
 
     onSignOut = () => {
         this.props.dispatch(logout());
+    }
+
+    onNotificationsPress = () => {
     }
 
     render() {
@@ -307,8 +319,8 @@ class ResponsiveDrawer extends React.Component {
                                     <MailIcon />
                                 </Badge>
                             </IconButton>
-                            <IconButton color="inherit">
-                                <Badge badgeContent={17} color="secondary">
+                            <IconButton color="inherit" onClick={this.onNotificationsPress}>
+                                <Badge badgeContent={this.state.numberOfNotifications} color="secondary">
                                     <NotificationsIcon />
                                 </Badge>
                             </IconButton>
