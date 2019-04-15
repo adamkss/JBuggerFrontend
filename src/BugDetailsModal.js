@@ -16,6 +16,7 @@ import axios from 'axios';
 import { getMaximumAndMinimumCorrectedDate } from './utils/Validators';
 import ConfrimBugDeletionDialog from './popovers/ConfirmBugDeletionDialog';
 import NewBugTitleDialog from './popovers/NewBugTitleDialog';
+import { withRouter } from 'react-router-dom';
 
 class BugDetailsModal extends PureComponent {
     state = {
@@ -73,6 +74,7 @@ class BugDetailsModal extends PureComponent {
 
     onModalClose = () => {
         this.props.dispatch(closeModal());
+        this.props.history.push("/bugs");
     }
 
     componentDidUpdate(prevProps) {
@@ -327,6 +329,7 @@ class BugDetailsModal extends PureComponent {
     onConfirmBugDeletion = () => {
         this.props.dispatch(startDeletingCurrentBug(this.props.bug.id));
         this.closeBugDeletionConfirmationDialog();
+        this.props.history.push("/bugs");
     }
 
     onBugRenameClick = () => {
@@ -355,6 +358,7 @@ class BugDetailsModal extends PureComponent {
 
     onBugClosePress = () => {
         this.props.dispatch(startClosingCurrentBug(this.props.bug.id));
+        this.props.history.push("/bugs");
     }
 
     render() {
@@ -379,7 +383,7 @@ class BugDetailsModal extends PureComponent {
                                     </Typography>
                                 </div>
                                 <div className="header__vertical-separator" />
-                                <a aria-label="Toggle sidebar" href="#" role="button" onClick={this.onModalClose} className="header__close-button" tabIndex="-1">
+                                <a aria-label="Toggle sidebar" role="button" onClick={this.onModalClose} className="header__close-button" tabIndex="-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
                                         <path d="M9,7.5l5.83-5.91a.48.48,0,0,0,0-.69L14.11.15a.46.46,0,0,0-.68,0l-5.93,6L1.57.15a.46.46,0,0,0-.68,0L.15.9a.48.48,0,0,0,0,.69L6,7.5.15,13.41a.48.48,0,0,0,0,.69l.74.75a.46.46,0,0,0,.68,0l5.93-6,5.93,6a.46.46,0,0,0,.68,0l.74-.75a.48.48,0,0,0,0-.69Z">
                                         </path>
@@ -709,4 +713,4 @@ const mapStateToProps = state => ({
     isProjectManager: state.security.isPM
 });
 
-export default connect(mapStateToProps)(BugDetailsModal);
+export default connect(mapStateToProps)(withRouter(BugDetailsModal));

@@ -9,7 +9,8 @@ import './BugsOverview.css';
 import { Button } from '@material-ui/core';
 import BugDetailsModal from './BugDetailsModal';
 import { connect } from 'react-redux';
-import { createBug, filterBugs, getAllStatuses, closeModal, setBugs, setBugWithId, startUpdatingBug, reorderStatuses, startDeletingSwimlane, startUpdatingSwimlaneName, startUpdatingSwimlaneColor } from './redux-stuff/actions/actionCreators';
+import { withRouter } from 'react-router-dom';
+import { createBug, filterBugs, getAllStatuses, closeModal, setBugs, setBugWithId, startUpdatingBug, reorderStatuses, startDeletingSwimlane, startUpdatingSwimlaneName, startUpdatingSwimlaneColor, bugClicked } from './redux-stuff/actions/actionCreators';
 import UnmountingDelayed from './UnmountingDelayed';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmBugColumnDeletionDialog from './popovers/ConfirmBugColumnDeletionDialog';
@@ -90,14 +91,46 @@ class BugsOverview extends Component {
     genericModalOpened: false,
     isInputNeededForBugColumnRenaming: false,
     isInputNeededForBugColumnRecoloring: false,
-    isCreateBugBigDialogOpen: false
+    isCreateBugBigDialogOpen: false,
+    waitingForBugLoadingToSelectOneBug: false
   }
 
   componentDidMount() {
     this.setState({
       isLoading: true
     })
+    if (this.props.match.params.bugId && this.props.bugs.length === 0) {
+      this.setState({
+        waitingForBugLoadingToSelectOneBug: true
+      })
+    }
   }
+
+  _dispatchBugClickedIfExists = (bugId) => {
+    if (this.props.bugs.filter(bug => bug.id == bugId).length > 0) {
+      this.props.dispatch(bugClicked(bugId))
+    }
+    else {
+      this.props.history.push("/bugs");
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    const bugId = this.props.match.params.bugId;
+    if (prevProps.match.params.bugId !== bugId) {
+      if (bugId)
+        this._dispatchBugClickedIfExists(bugId);
+    }
+    if (prevProps.bugs.length === 0
+      && (this.props.bugs.length > 0)
+      && this.state.waitingForBugLoadingToSelectOneBug) {
+      this._dispatchBugClickedIfExists(bugId);
+      this.setState({
+        waitingForBugLoadingToSelectOneBug: false
+      })
+    }
+  }
+
 
   handleNewBugPopoverClose = () => {
     this.setState({
@@ -166,6 +199,7 @@ class BugsOverview extends Component {
 
   onKeyPressed = (event) => {
     if (event.keyCode == 27 && this.props.activeBugToModifyID) {
+      this.props.history.push("/bugs");
       this.props.dispatch(closeModal());
     }
   }
@@ -453,4 +487,4 @@ const mapStateToProps = state => ({
   movingBugNewStatus: state.bugs.movingBugNewStatus
 });
 
-export default withStyles(styles)(connect(mapStateToProps)(BugsOverview));
+export default withStyles(styles)(withRouter(connect(mapStateToProps)(BugsOverview)));

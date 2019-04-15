@@ -28,13 +28,13 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import BugDetail from './BugDetail';
 import BugsOverview from './BugsOverview';
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, Redirect } from 'react-router-dom'
 import { withRouter } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import GenericModal from './GenericModal';
 import CreateSwimLaneModalContent from './CreateSwimLaneModalContent';
 import { connect } from 'react-redux';
-import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses } from './redux-stuff/actions/actionCreators';
+import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllInitialData } from './redux-stuff/actions/actionCreators';
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
 import axios from 'axios';
@@ -131,15 +131,14 @@ class ResponsiveDrawer extends React.Component {
     };
 
     componentDidMount() {
-        this.props.dispatch(getLabels());
-        this.props.dispatch(getAllStatuses());
+        this.props.dispatch(setupAllInitialData());
         const queryNotificationsCount = () => {
             axios.get("http://localhost:8080/users/current/notifications/count")
-            .then(({ data: newNumberOfNotifications }) => {
-                this.setState({
-                    numberOfNotifications: newNumberOfNotifications
+                .then(({ data: newNumberOfNotifications }) => {
+                    this.setState({
+                        numberOfNotifications: newNumberOfNotifications
+                    })
                 })
-            })
         };
         queryNotificationsCount();
         setInterval(queryNotificationsCount, 2000);
@@ -252,7 +251,7 @@ class ResponsiveDrawer extends React.Component {
                     container>
                     <Grid item>
                         <List>
-                            <ListItem button key="bugsOverViewListItem" onClick={() => this.props.history.push("/")}>
+                            <ListItem button key="bugsOverViewListItem" onClick={() => this.props.history.push("/bugs")}>
                                 <ListItemIcon> <InboxIcon /></ListItemIcon>
                                 <ListItemText primary="Bugs Overview" />
                             </ListItem>
@@ -385,6 +384,11 @@ class ResponsiveDrawer extends React.Component {
                     <Route
                         exact
                         path={`${this.props.match.path}`}
+                        render={() => <Redirect to="/bugs" />}
+                    />
+                    <Route
+                        exact
+                        path={`${this.props.match.path}bugs/:bugId?`}
                         render={() => <BugsOverview onModalOpenClick={this.onModalOpenClick} />}
                     />
                     <Route

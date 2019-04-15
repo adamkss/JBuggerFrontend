@@ -29,7 +29,7 @@ export const setBugWithId = (modifedBug) => {
     }
 }
 
-export const getAllStatuses = () => {
+export const getAllStatusesAndBugs = () => {
     return (dispatch) => {
         dispatch(startGettingAllBugs());
         axios.get('http://localhost:8080/statuses')
@@ -37,6 +37,13 @@ export const getAllStatuses = () => {
                 dispatch(setStatuses(data))
                 dispatch(getAllBugs())
             });
+    }
+}
+
+export const setupAllInitialData = () => {
+    return dispatch => {
+        dispatch(getLabels());
+        dispatch(getAllStatusesAndBugs());
     }
 }
 

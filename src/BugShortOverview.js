@@ -30,8 +30,8 @@ class BugShortOverview extends Component {
   }
 
   onBugClick() {
-    // this.props.history.push(`/bugs/bug/${this.props.id}`);
-    this.props.dispatch(bugClicked(this.props.id));
+    this.props.history.push(`/bugs/${this.props.id}`);
+    // this.props.dispatch(bugClicked(this.props.id));
   }
 
   state = {
