@@ -19,9 +19,6 @@ import NewSwimlaneNameInputDialog from './popovers/NewSwimlaneNameInputDialog';
 import RecolorSwimlaneInputDialog from './popovers/RecolorSwimlaneInputDialog';
 import CreateBugBigDialog from './popovers/CreateBugBigDialog';
 
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { IconButton } from '@material-ui/core';
-
 import axios from 'axios';
 
 function FirstChild(props) {

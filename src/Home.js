@@ -38,6 +38,7 @@ import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllIn
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
 import axios from 'axios';
+import NotificationsPopover from './popovers/NotificationsPopover';
 
 const drawerWidth = 240;
 
@@ -127,7 +128,9 @@ class ResponsiveDrawer extends React.Component {
         anchorEl: null,
         modalOpened: false,
         modalType: null,
-        numberOfNotifications: 0
+        numberOfNotifications: 0,
+        notificationsAnchorEl: null,
+        notifications: []
     };
 
     componentDidMount() {
@@ -190,7 +193,23 @@ class ResponsiveDrawer extends React.Component {
         this.props.dispatch(logout());
     }
 
-    onNotificationsPress = () => {
+    closeNotificationsPopover = () => {
+        this.setState({
+            notificationsAnchorEl: null
+        })
+    }
+
+    onNotificationsPress = (event) => {
+        this.setState({
+            notificationsAnchorEl: event.currentTarget
+        })
+
+        axios.get("http://localhost:8080/users/current/notifications")
+            .then(({ data: notifications }) => {
+                this.setState({
+                    notifications
+                })
+            })
     }
 
     render() {
@@ -198,6 +217,7 @@ class ResponsiveDrawer extends React.Component {
         const { anchorEl, mobileMoreAnchorEl } = this.state;
         const isMenuOpen = Boolean(anchorEl);
         const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+        const isNotificationsOpen = Boolean(this.state.notificationsAnchorEl);
 
         const renderMenu = (
             <Menu
@@ -413,6 +433,11 @@ class ResponsiveDrawer extends React.Component {
                     </GenericModal>
                     :
                     ""}
+                <NotificationsPopover
+                    open={isNotificationsOpen}
+                    anchorEl={this.state.notificationsAnchorEl}
+                    onClose={this.closeNotificationsPopover}
+                    notifications={this.state.notifications} />
             </div>
         );
     }
