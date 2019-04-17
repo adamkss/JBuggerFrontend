@@ -209,6 +209,10 @@ class ResponsiveDrawer extends React.Component {
                 this.setState({
                     notifications
                 })
+                axios.put("http://localhost:8080/users/current/notifications/seen")
+                    .then({
+
+                    })
             })
     }
 
