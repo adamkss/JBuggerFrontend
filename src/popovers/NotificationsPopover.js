@@ -7,12 +7,14 @@ export default class NotificationsPopover extends Component {
     state = {
 
     }
+
     getIconForNotification(isBugRelevant) {
         const isBugRelevantClass = isBugRelevant ? "bug-icon" : "general-icon";
         return <div className={"notification-icon " + isBugRelevantClass}>
             <span>{isBugRelevant ? "B" : "G"}</span>
         </div>
     }
+
     render() {
         return (
             <Popover
@@ -40,27 +42,35 @@ export default class NotificationsPopover extends Component {
                         :
                         null
                     }
-                    {this.props.notifications.map(notification =>
-                        <>
-                            <div className="notification-content">
-                                {this.getIconForNotification(notification.isRelatedToBug)}
-                                <div className="notification-content__general">
-                                    {notification.text}
-                                    {notification.isRelatedToBug ?
-                                        <>
-                                            <span>
-                                                #{notification.bugId}
-                                            </span>
-                                            <span>
-                                                {notification.bugTitle}
-                                            </span>
-                                        </>
-                                        :
-                                        null}
+                    {this.props.notifications.map(notification => {
+                        const classExtra = notification.relatedToBug ? "related-to-bug" : "";
+                        const onClickCallback = notification.relatedToBug ?
+                            this.props.getNotificationRelatedToBugClicked(notification.bugId)
+                            :
+                            () => { };
+                        return (
+                            <>
+                                <div className={`notification-content ${classExtra}`} onClick={onClickCallback}>
+                                    {this.getIconForNotification(notification.relatedToBug)}
+                                    <div className="notification-content__general">
+                                        {notification.text}
+                                        {notification.relatedToBug ?
+                                            <div>
+                                                <span className="notification__bug-id">
+                                                    #{notification.bugId}
+                                                </span>
+                                                <span className="notification__bug-title">
+                                                    {notification.bugTitle}
+                                                </span>
+                                            </div>
+                                            :
+                                            null}
+                                    </div>
                                 </div>
-                            </div>
-                            <Divider />
-                        </>
+                                <Divider />
+                            </>
+                        )
+                    }
                     )}
                 </div>
             </Popover>

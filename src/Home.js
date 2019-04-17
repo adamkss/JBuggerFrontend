@@ -144,7 +144,7 @@ class ResponsiveDrawer extends React.Component {
                 })
         };
         queryNotificationsCount();
-        setInterval(queryNotificationsCount, 2000);
+        // setInterval(queryNotificationsCount, 2000);
     }
 
     handleDrawerToggle = () => {
@@ -210,6 +210,11 @@ class ResponsiveDrawer extends React.Component {
                     notifications
                 })
             })
+    }
+
+    getNotificationRelatedToBugClicked = (bugId) => () => {
+        this.props.history.push(`/bugs/${bugId}`);
+        this.closeNotificationsPopover();
     }
 
     render() {
@@ -437,7 +442,8 @@ class ResponsiveDrawer extends React.Component {
                     open={isNotificationsOpen}
                     anchorEl={this.state.notificationsAnchorEl}
                     onClose={this.closeNotificationsPopover}
-                    notifications={this.state.notifications} />
+                    notifications={this.state.notifications}
+                    getNotificationRelatedToBugClicked={this.getNotificationRelatedToBugClicked} />
             </div>
         );
     }

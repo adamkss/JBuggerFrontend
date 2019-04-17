@@ -96,10 +96,14 @@ class BugsOverview extends Component {
     this.setState({
       isLoading: true
     })
-    if (this.props.match.params.bugId && this.props.bugs.length === 0) {
-      this.setState({
-        waitingForBugLoadingToSelectOneBug: true
-      })
+    if (this.props.match.params.bugId) {
+      if (this.props.bugs.length === 0) {
+        this.setState({
+          waitingForBugLoadingToSelectOneBug: true
+        })
+      } else {
+        this.props.dispatch(bugClicked(this.props.match.params.bugId));
+      }
     }
   }
 

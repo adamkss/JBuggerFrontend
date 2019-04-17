@@ -29,18 +29,24 @@
 }
 
 .bug-icon{
-    background-color: red;
+    background-color: #65499c;
 }
 
 .general-icon{
-    background-color: blue;
+    background-color: #039be5;
 }
 
 .notification-content{
     padding: 3px;
+    padding-top: 7px;
+    padding-bottom: 7px;
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.notification-content.related-to-bug{
+    cursor:pointer;
 }
 
 .notification-content__general{
@@ -48,4 +54,20 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+}
+
+.notification__bug-id{
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    line-height: 1.375em;
+}
+
+.notification__bug-title {
+    font-size: 0.875rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: 0.00714em;
+    padding-left: 3px;
 }
