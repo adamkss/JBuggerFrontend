@@ -1,7 +1,7 @@
 import Popover from '@material-ui/core/Popover';
 import React, { Component } from 'react'
 import '../NotificationsPopover.css';
-import { Divider } from '@material-ui/core';
+import { Divider, Typography } from '@material-ui/core';
 
 export default class NotificationsPopover extends Component {
     state = {
@@ -53,7 +53,7 @@ export default class NotificationsPopover extends Component {
                                 <div className={`notification-content ${classExtra}`} onClick={onClickCallback}>
                                     {this.getIconForNotification(notification.relatedToBug)}
                                     <div className="notification-content__general">
-                                        {notification.text}
+                                        <Typography>{notification.text}</Typography>
                                         {notification.relatedToBug ?
                                             <div>
                                                 <span className="notification__bug-id">

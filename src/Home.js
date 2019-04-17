@@ -144,7 +144,7 @@ class ResponsiveDrawer extends React.Component {
                 })
         };
         queryNotificationsCount();
-        // setInterval(queryNotificationsCount, 2000);
+        setInterval(queryNotificationsCount, 2000);
     }
 
     handleDrawerToggle = () => {
