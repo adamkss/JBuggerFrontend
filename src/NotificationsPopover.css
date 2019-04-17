@@ -1,10 +1,10 @@
 .notifications-popover{
     width: 400px;
     max-height: 350px;
-    padding: 10px;
 }
 
 .notifications-title{
+    padding: 10px;
     font-weight: 400;
     font-size: 20px;
 }
@@ -37,16 +37,18 @@
 }
 
 .notification-content{
-    padding: 3px;
-    padding-top: 7px;
-    padding-bottom: 7px;
+    padding: 10px;
     display: flex;
     flex-direction: row;
     align-items: center;
+    cursor:pointer;
+}
+
+.notification-content:hover{
+    background-color: #f1f1f1;
 }
 
 .notification-content.related-to-bug{
-    cursor:pointer;
 }
 
 .notification-content__general{
@@ -67,6 +69,16 @@
     font-size: 0.875rem;
     font-family: "Roboto", "Helvetica", "Arial", sans-serif;
     font-weight: 500;
+    line-height: 1.57;
+    letter-spacing: 0.00714em;
+    padding-left: 3px;
+}
+
+.notification__created-time {
+    color: grey;
+    font-size: 0.775rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 300;
     line-height: 1.57;
     letter-spacing: 0.00714em;
     padding-left: 3px;

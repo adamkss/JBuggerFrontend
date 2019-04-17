@@ -10,7 +10,8 @@ export default class NotificationsPopover extends Component {
 
     getIconForNotification(isBugRelevant) {
         const isBugRelevantClass = isBugRelevant ? "bug-icon" : "general-icon";
-        return <div className={"notification-icon " + isBugRelevantClass}>
+        const title = isBugRelevant ? "Bug related" : "General";
+        return <div className={"notification-icon " + isBugRelevantClass} title={title}>
             <span>{isBugRelevant ? "B" : "G"}</span>
         </div>
     }
@@ -65,6 +66,7 @@ export default class NotificationsPopover extends Component {
                                             </div>
                                             :
                                             null}
+                                        <span className="notification__created-time">{notification.createdTime}</span>
                                     </div>
                                 </div>
                                 <Divider />
