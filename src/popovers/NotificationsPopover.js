@@ -43,37 +43,41 @@ export default class NotificationsPopover extends Component {
                         :
                         null
                     }
-                    {this.props.notifications.map(notification => {
-                        const classExtra = notification.relatedToBug ? "related-to-bug" : "";
-                        const onClickCallback = notification.relatedToBug ?
-                            this.props.getNotificationRelatedToBugClicked(notification.bugId)
-                            :
-                            () => { };
-                        return (
-                            <>
-                                <div className={`notification-content ${classExtra}`} onClick={onClickCallback}>
-                                    {this.getIconForNotification(notification.relatedToBug)}
-                                    <div className="notification-content__general">
-                                        <Typography>{notification.text}</Typography>
-                                        {notification.relatedToBug ?
-                                            <div>
-                                                <span className="notification__bug-id">
-                                                    #{notification.bugId}
-                                                </span>
-                                                <span className="notification__bug-title">
-                                                    {notification.bugTitle}
-                                                </span>
-                                            </div>
-                                            :
-                                            null}
-                                        <span className="notification__created-time">{notification.createdTime}</span>
+                    <div className="notifications__main">
+                        {this.props.notifications.map(notification => {
+                            const classExtra = notification.relatedToBug ? "related-to-bug" : "";
+                            const onClickCallback = notification.relatedToBug ?
+                                this.props.getNotificationRelatedToBugClicked(notification.bugId)
+                                :
+                                () => { };
+                            return (
+                                <>
+                                    <div className={`notification-content ${classExtra}`} onClick={onClickCallback}>
+                                        {this.getIconForNotification(notification.relatedToBug)}
+                                        <div className="notification-content__general">
+                                            <Typography>{notification.text}</Typography>
+                                            {notification.relatedToBug ?
+                                                <div>
+                                                    <span className="notification__bug-id">
+                                                        #{notification.bugId}
+                                                    </span>
+                                                    <span className="notification__bug-title">
+                                                        {notification.bugTitle}
+                                                    </span>
+                                                </div>
+                                                :
+                                                null}
+                                            <span className="notification__created-time">{notification.createdTime}</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <Divider />
-                            </>
-                        )
-                    }
-                    )}
+                                    <div className="notification__divider-wrapper">
+                                        <Divider />
+                                    </div>
+                                </>
+                            )
+                        }
+                        )}
+                    </div>
                 </div>
             </Popover>
         )
