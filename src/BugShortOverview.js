@@ -66,14 +66,14 @@ class BugShortOverview extends Component {
               {this.props.title}
             </Typography>
             {!this.props.currentUserInterestedInMe ?
-              <img title="Bug is not starred."
+              <img title="Subscribe to bug changes."
                 className="star subscribe-star"
                 onClick={this.onSubscribeToNewChanges}
                 src={UnsubscribedStar} />
               :
               <img
                 className="star"
-                title="Bug is starred."
+                title="Unsubscribe from bug changes."
                 onClick={this.onUnsubscribeToNewChanges}
                 src={SubscribedStar} />
             }
