@@ -5,7 +5,6 @@
     box-shadow: 2px 0px 4px 0px rgba(182, 182, 182, 0.75);
     padding: 15px;
     padding-bottom:10px;
-    cursor:pointer;
     margin-top: 6px;
     position: relative;
 }
@@ -44,4 +43,17 @@
     justify-content: flex-end;
     flex-wrap: wrap;
     z-index: 2;
+}
+
+.star{
+    cursor: pointer;
+}
+
+.subscribe-star {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.bug-short-overview:hover .subscribe-star{
+    opacity: 0.6;
 }

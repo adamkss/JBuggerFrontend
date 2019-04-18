@@ -86,7 +86,8 @@ class BugsColumn extends PureComponent {
                         title={bug.title}
                         id={bug.id}
                         labels={bug.labels}
-                        severity={bug.severity} />
+                        severity={bug.severity}
+                        currentUserInterestedInMe={bug.currentUserInterestedInMe} />
                     </Draggable>
                 )
                 :

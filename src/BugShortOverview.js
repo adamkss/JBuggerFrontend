@@ -6,19 +6,21 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { bugClicked } from './redux-stuff/actions/actionCreators';
+import { bugClicked, startSubscribingToBugChanges, startUnsubscribingToBugChanges } from './redux-stuff/actions/actionCreators';
 import LabelShort from './LabelShort';
 import CriticalSign from './assets/severitySVGs/CriticalSign';
 import HighSign from './assets/severitySVGs/HighSign';
 import MediumSign from './assets/severitySVGs/MediumSign';
 import LowSign from './assets/severitySVGs/LowSign';
+import UnsubscribedStar from './assets/star_grey.svg';
+import SubscribedStar from './assets/star_subscribed.svg';
 
 export const getIconForSeverity = severity => {
-  switch(severity){
-    case "LOW" : return <LowSign/>;
-    case "MEDIUM": return <MediumSign/>;
-    case "HIGH" : return <HighSign/>
-    case "CRITICAL" : return <CriticalSign/>
+  switch (severity) {
+    case "LOW": return <LowSign />;
+    case "MEDIUM": return <MediumSign />;
+    case "HIGH": return <HighSign />
+    case "CRITICAL": return <CriticalSign />
     default: return null;
   }
 }
@@ -40,19 +42,41 @@ class BugShortOverview extends Component {
   componentDidMount() {
 
   }
+  
+  onSubscribeToNewChanges = (event) => {
+    event.stopPropagation();
+    this.props.dispatch(startSubscribingToBugChanges(this.props.id));
+  }
+  
+  onUnsubscribeToNewChanges = (event) => {
+    event.stopPropagation();
+    this.props.dispatch(startUnsubscribingToBugChanges(this.props.id));
+  }
 
   render() {
     const isThisTheSelectedBug = this.props.currentlySelectedBugID == this.props.id;
-    
+
     return (
       <div className={"bug-short-overview"} onClick={this.onBugClick}>
         <Grid
           container
           direction="column">
-          <div className="flexbox-horizontal">
+          <div className="flexbox-horizontal flexbox-align-items-center">
             <Typography variant="subtitle2" color="inherit" className="flex-grow">
               {this.props.title}
             </Typography>
+            {!this.props.currentUserInterestedInMe ?
+              <img title="Bug is not starred."
+                className="star subscribe-star"
+                onClick={this.onSubscribeToNewChanges}
+                src={UnsubscribedStar} />
+              :
+              <img
+                className="star"
+                title="Bug is starred."
+                onClick={this.onUnsubscribeToNewChanges}
+                src={SubscribedStar} />
+            }
             {getIconForSeverity(this.props.severity)}
           </div>
           <Grid item>

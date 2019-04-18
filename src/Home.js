@@ -342,11 +342,6 @@ class ResponsiveDrawer extends React.Component {
                                 </Typography>
                         </section>
                         <div className={classes.sectionDesktop}>
-                            <IconButton color="inherit">
-                                <Badge badgeContent={4} color="secondary">
-                                    <MailIcon />
-                                </Badge>
-                            </IconButton>
                             <IconButton color="inherit" onClick={this.onNotificationsPress}>
                                 <Badge badgeContent={this.state.numberOfNotifications} color="secondary">
                                     <NotificationsIcon />
