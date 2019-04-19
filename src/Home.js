@@ -186,7 +186,7 @@ class ResponsiveDrawer extends React.Component {
 
     onNewSwimLaneDone = (newSwimLane) => {
         this.onGenericModalClose();
-        this.props.dispatch(startCreatingNewSwimLane(newSwimLane));
+        this.props.dispatch(startCreatingNewSwimLane(this.props.currentProjectId, newSwimLane));
     }
 
     onSignOut = () => {
@@ -457,6 +457,7 @@ ResponsiveDrawer.propTypes = {
 };
 
 const mapStateToProps = state => ({
+    currentProjectId: state.bugs.currentProjectId,
     username: state.security.username,
     loggedInUserName: state.security.loggedInUserName
 })
