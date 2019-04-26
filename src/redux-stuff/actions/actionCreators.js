@@ -252,9 +252,9 @@ export const deleteSwimLane = (statusName) => {
     }
 }
 
-export const startUpdatingSwimlaneName = (oldSwimLaneId, oldSwimLaneName, newSwimLaneName) => {
+export const startUpdatingSwimlaneName = (swimLaneId, oldSwimLaneName, newSwimLaneName) => {
     return (dispatch) => {
-        axios.put(`http://localhost:8080/statuses/${oldSwimLaneId}/name`, {
+        axios.put(`http://localhost:8080/statuses/${swimLaneId}/name`, {
             statusName: newSwimLaneName
         }).then(() => {
             dispatch(updateSwimLaneName(oldSwimLaneName, newSwimLaneName))
@@ -272,9 +272,9 @@ export const updateSwimLaneName = (oldSwimLaneName, newSwimLaneName) => {
     }
 }
 
-export const startUpdatingSwimlaneColor = (swimlaneName, newSwimlaneColor) => {
+export const startUpdatingSwimlaneColor = (swimLaneId, swimlaneName, newSwimlaneColor) => {
     return (dispatch) => {
-        axios.put(`http://localhost:8080/statuses/${swimlaneName}/color`, {
+        axios.put(`http://localhost:8080/statuses/${swimLaneId}/color`, {
             statusColor: newSwimlaneColor
         }).then(() => {
             dispatch(updateSwimlaneColor(swimlaneName, newSwimlaneColor))

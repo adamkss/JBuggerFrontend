@@ -43,7 +43,7 @@ class Statistics extends PureComponent {
     }
 
     componentDidMount() {
-        axios.get("http://localhost:8080/statistics/byLabels")
+        axios.get(`http://localhost:8080/statistics/byLabels/${this.props.currentProjectId}`)
             .then(({ data }) => {
                 this.setState({
                     statisticsByLabels: data
@@ -154,7 +154,8 @@ class Statistics extends PureComponent {
 }
 
 export default connect(state => ({
-    statuses: state.bugs.statuses
+    statuses: state.bugs.statuses,
+    currentProjectId: state.bugs.currentProjectId
 }))(Statistics);
 
 const timeUnitsColors = {

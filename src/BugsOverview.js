@@ -300,7 +300,7 @@ class BugsOverview extends Component {
   }
 
   onRecolorBugColumnDialogConfirm = (newSwimLaneColor) => {
-    this.props.dispatch(startUpdatingSwimlaneColor(this.state.columnToModifyName, newSwimLaneColor));
+    this.props.dispatch(startUpdatingSwimlaneColor(this.state.columnToModifyId, this.state.columnToModifyName, newSwimLaneColor));
     this.closeBugColumnRecolorDialog();
     this.handleMoreBugColumnOptionsPopoverClose();
   }
