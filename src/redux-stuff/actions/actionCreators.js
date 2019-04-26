@@ -29,12 +29,21 @@ export const setBugWithId = (modifedBug) => {
     }
 }
 
+export const switchProject = (projectId) => {
+    return (dispatch) => {
+        dispatch(setCurrentProject(projectId));
+        dispatch(getAllStatusesAndBugs(projectId));
+        dispatch(bugClicked(null));
+    }
+}
+
 export const getAllStatusesAndBugs = (projectId) => {
     return (dispatch) => {
         dispatch(startGettingAllBugs());
         axios.get(`http://localhost:8080/statuses/${projectId}`)
             .then(({ data }) => {
                 dispatch(setStatuses(data))
+                dispatch(getLabels(projectId));
                 dispatch(getAllBugs(projectId))
             });
     }

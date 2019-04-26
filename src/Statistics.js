@@ -50,7 +50,7 @@ class Statistics extends PureComponent {
                 })
             })
 
-        axios.get("http://localhost:8080/bugs/closedStatistics")
+        axios.get(`http://localhost:8080/bugs/closedStatistics/${this.props.currentProjectId}`)
             .then(({ data }) => {
                 console.log(data)
                 this.setState({

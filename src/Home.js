@@ -34,11 +34,13 @@ import Grid from '@material-ui/core/Grid';
 import GenericModal from './GenericModal';
 import CreateSwimLaneModalContent from './CreateSwimLaneModalContent';
 import { connect } from 'react-redux';
-import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllInitialData } from './redux-stuff/actions/actionCreators';
+import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllInitialData, getAllStatusesAndBugs, switchProject } from './redux-stuff/actions/actionCreators';
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
 import axios from 'axios';
 import NotificationsPopover from './popovers/NotificationsPopover';
+import { Select } from '@material-ui/core';
+import './Home.css';
 
 const drawerWidth = 240;
 
@@ -221,6 +223,10 @@ class ResponsiveDrawer extends React.Component {
         this.closeNotificationsPopover();
     }
 
+    onSelectProject = (projectId) => {
+        this.props.dispatch(switchProject(projectId))
+    }
+
     render() {
         const { classes, theme } = this.props;
         const { anchorEl, mobileMoreAnchorEl } = this.state;
@@ -324,18 +330,11 @@ class ResponsiveDrawer extends React.Component {
                             JBugger
                          </Typography>
 
-                        <div className={classes.search}>
-                            <div className={classes.searchIcon}>
-                                <SearchIcon />
-                            </div>
-                            <InputBase
-                                placeholder="Search…"
-                                classes={{
-                                    root: classes.inputRoot,
-                                    input: classes.inputInput,
-                                }}
-                            />
-                        </div>
+                        <ProjectSelectorDropdown
+                            projects={this.props.projects}
+                            onSelectProject={this.onSelectProject}
+                            selectedProject={this.props.currentProjectId} />
+
                         <section className="centered-vertically">
                             <Typography variant="subtitle2" color="inherit">
                                 Welcome, {this.props.loggedInUserName}.
@@ -459,7 +458,30 @@ ResponsiveDrawer.propTypes = {
 const mapStateToProps = state => ({
     currentProjectId: state.bugs.currentProjectId,
     username: state.security.username,
-    loggedInUserName: state.security.loggedInUserName
+    loggedInUserName: state.security.loggedInUserName,
+    projects: state.bugs.projects
 })
 
 export default withStyles(styles, { withTheme: true })(withRouter(connect(mapStateToProps)(ResponsiveDrawer)));
+
+class ProjectSelectorDropdown extends React.PureComponent {
+    state = {
+    }
+
+    onSelectionChange = (event) => {
+        this.props.onSelectProject(event.target.value)
+    }
+    render() {
+        return (
+            <Select
+                className="project-select"
+                onChange={this.onSelectionChange}
+                value={this.props.selectedProject}
+                disableUnderline>
+                {this.props.projects.map(project =>
+                    <MenuItem key={project.id} value={project.id}>{project.name}</MenuItem>
+                )}
+            </Select>
+        )
+    }
+}
