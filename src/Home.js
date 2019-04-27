@@ -15,6 +15,9 @@ import InputBase from '@material-ui/core/InputBase';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import SearchIcon from '@material-ui/icons/Search';
+import BugReport from '@material-ui/icons/BugReport';
+import SettingsIcon from '@material-ui/icons/Settings';
+import BarChart from '@material-ui/icons/BarChart';
 import MoreIcon from '@material-ui/icons/More';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -288,16 +291,16 @@ class ResponsiveDrawer extends React.Component {
                     <Grid item>
                         <List>
                             <ListItem button key="bugsOverViewListItem" onClick={() => this.props.history.push("/bugs")}>
-                                <ListItemIcon> <InboxIcon /></ListItemIcon>
+                                <ListItemIcon> <BugReport /></ListItemIcon>
                                 <ListItemText primary="Bugs Overview" />
                             </ListItem>
                             <ListItem button key="statisticsListItem" onClick={() => this.props.history.push("/statistics")}>
-                                <ListItemIcon> <InboxIcon /></ListItemIcon>
+                                <ListItemIcon> <BarChart /></ListItemIcon>
                                 <ListItemText primary="Statistics" />
                             </ListItem>
                             {this.props.isDEV ?
                                 <ListItem button key="projectSettingsListItem" onClick={() => this.props.history.push("/projectSettings")}>
-                                    <ListItemIcon> <InboxIcon /></ListItemIcon>
+                                    <ListItemIcon> <SettingsIcon /></ListItemIcon>
                                     <ListItemText primary="Project settings" />
                                 </ListItem>
                                 :
