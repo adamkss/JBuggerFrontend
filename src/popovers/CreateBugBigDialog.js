@@ -74,7 +74,7 @@ class CreateBugBigDialog extends Component {
   }
 
   onAssignUserButtonClick = (event) => {
-    this.props.dispatch(getUserNames());
+    this.props.dispatch(getUserNames(this.props.currentProjectId));
     this.setState({
       selectAssignedToUserPopoverAnchorEl: event.currentTarget
     })
@@ -361,7 +361,8 @@ const mapStateToProps = state => ({
   statuses: state.bugs.statuses,
   users: state.bugs.usernames,
   labels: state.bugs.labels,
-  statuses: state.bugs.statuses
+  statuses: state.bugs.statuses,
+  currentProjectId: state.bugs.currentProjectId
 })
 
 export default connect(mapStateToProps)(CreateBugBigDialog);

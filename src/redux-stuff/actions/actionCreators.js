@@ -163,9 +163,9 @@ export const setUserNames = (usernames) => {
     }
 }
 
-export const getUserNames = () => {
+export const getUserNames = (projectId) => {
     return (dispatch) => {
-        axios.get("http://localhost:8080/users/namesAndUsernames")
+        axios.get(`http://localhost:8080/users/namesAndUsernames/${projectId}`)
             .then(({ data }) => dispatch(setUserNames(data)))
     }
 }

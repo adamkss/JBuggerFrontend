@@ -157,7 +157,7 @@ class BugDetailsModal extends PureComponent {
             isAssignedToInEditMode: true
         })
 
-        this.props.dispatch(getUserNames());
+        this.props.dispatch(getUserNames(this.props.currentProjectId));
     }
 
     onAssignedToSave = () => {
@@ -710,7 +710,8 @@ const mapStateToProps = state => ({
     severities: state.bugs.severities,
     labels: state.bugs.labels,
     currentlyLoggedInUsername: state.security.username,
-    isProjectManager: state.security.isPM
+    isProjectManager: state.security.isPM,
+    currentProjectId: state.bugs.currentProjectId
 });
 
 export default connect(mapStateToProps)(withRouter(BugDetailsModal));
