@@ -81,6 +81,7 @@ class BugsOverview extends Component {
     newBugPopoverAnchorEl: null,
     moreBugColumnOptionsAnchorEL: null,
     newBugStatus: null,
+    columnToModifyId: null,
     columnToModifyName: null,
     columnToModifyColor: null,
     isConfirmationNeededForBugColumnDeletion: false,
@@ -142,6 +143,7 @@ class BugsOverview extends Component {
   handleMoreBugColumnOptionsPopoverClose = () => {
     this.setState({
       moreBugColumnOptionsAnchorEL: null,
+      columnToModifyId: null,
       columnToModifyName: null
     });
   }
@@ -163,10 +165,11 @@ class BugsOverview extends Component {
     this.openCreateNewBugPopover(bugStatus, event.currentTarget);
   }
 
-  createOnMoreOptionsCallbackForStatus = (bugStatus, bugStatusColor) => event => {
+  createOnMoreOptionsCallbackForStatus = (statusId, statusName, bugStatusColor) => event => {
     this.setState({
       moreBugColumnOptionsAnchorEL: event.currentTarget,
-      columnToModifyName: bugStatus,
+      columnToModifyId: statusId,
+      columnToModifyName: statusName,
       columnToModifyColor: bugStatusColor
     });
   }
@@ -178,7 +181,7 @@ class BugsOverview extends Component {
       attachmentIds: []
     };
 
-    this.props.dispatch(createBug(newBugWithStatus));
+    this.props.dispatch(createBug(this.props.currentProjectId, newBugWithStatus));
     this.handleNewBugPopoverClose();
   }
 
@@ -223,7 +226,7 @@ class BugsOverview extends Component {
     const newOrder = result.destination.index;
 
     this.props.dispatch(reorderStatuses(oldOrder, newOrder));
-    axios.put(`http://localhost:8080/statuses/order`, {
+    axios.put(`http://localhost:8080/statuses/${this.props.currentProjectId}/order`, {
       oldOrder,
       newOrder
     });
@@ -251,7 +254,7 @@ class BugsOverview extends Component {
   }
 
   onConfirmBugDeletionDialogConfirm = () => {
-    this.props.dispatch(startDeletingSwimlane(this.state.columnToModifyName));
+    this.props.dispatch(startDeletingSwimlane(this.state.columnToModifyId, this.state.columnToModifyName));
     this.closeConfirmBugColumnCreationDialog();
     this.handleMoreBugColumnOptionsPopoverClose();
   }
@@ -274,7 +277,7 @@ class BugsOverview extends Component {
   }
 
   onRenameBugColumnDialogConfirm = (newSwimLaneName) => {
-    this.props.dispatch(startUpdatingSwimlaneName(this.state.columnToModifyName, newSwimLaneName));
+    this.props.dispatch(startUpdatingSwimlaneName(this.state.columnToModifyId, this.state.columnToModifyName, newSwimLaneName));
     this.closeBugColumnRenameDialog();
     this.handleMoreBugColumnOptionsPopoverClose();
   }
@@ -297,7 +300,7 @@ class BugsOverview extends Component {
   }
 
   onRecolorBugColumnDialogConfirm = (newSwimLaneColor) => {
-    this.props.dispatch(startUpdatingSwimlaneColor(this.state.columnToModifyName, newSwimLaneColor));
+    this.props.dispatch(startUpdatingSwimlaneColor(this.state.columnToModifyId, this.state.columnToModifyName, newSwimLaneColor));
     this.closeBugColumnRecolorDialog();
     this.handleMoreBugColumnOptionsPopoverClose();
   }
@@ -325,7 +328,7 @@ class BugsOverview extends Component {
       labelsIds: labels.map(label => label.id)
     };
 
-    this.props.dispatch(createBug(newBug));
+    this.props.dispatch(createBug(this.props.currentProjectId, newBug));
     this.closeCreateBugBigDialog();
   }
 
@@ -392,7 +395,7 @@ class BugsOverview extends Component {
                         statusColor={bugStatus.statusColor}
                         bugs={this.props.bugsByStatusFiltered[bugStatus.statusName] ? this.props.bugsByStatusFiltered[bugStatus.statusName] : []}
                         onAddBug={this.createOnAddBugCallbackForStatus(bugStatus.statusName)}
-                        onMoreOptions={this.createOnMoreOptionsCallbackForStatus(bugStatus.statusName, bugStatus.statusColor)}
+                        onMoreOptions={this.createOnMoreOptionsCallbackForStatus(bugStatus.id, bugStatus.statusName, bugStatus.statusColor)}
                         bugDragStarted={this.bugDragStarted}
                         onBugDrop={this.bugDropped}
                         isPossibleDropTarget={this.state.draggingBugFromStatus && this.state.draggingBugFromStatus !== bugStatus.statusName}
@@ -485,7 +488,8 @@ const mapStateToProps = state => ({
   waitingForBugLoading: state.bugs.waitingForBugLoading,
   activeBugToModifyID: state.bugs.activeBugToModifyID,
   movingBugOldStatus: state.bugs.movingBugOldStatus,
-  movingBugNewStatus: state.bugs.movingBugNewStatus
+  movingBugNewStatus: state.bugs.movingBugNewStatus,
+  currentProjectId: state.bugs.currentProjectId
 });
 
 export default withStyles(styles)(withRouter(connect(mapStateToProps)(BugsOverview)));

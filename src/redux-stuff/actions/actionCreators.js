@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG, CLOSE_CURRENT_BUG, SUCCESFULLY_SUBSCRIBED_TO_BUG, SUCCESFULLY_UNSUBSCRIBED_TO_BUG } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG, CLOSE_CURRENT_BUG, SUCCESFULLY_SUBSCRIBED_TO_BUG, SUCCESFULLY_UNSUBSCRIBED_TO_BUG, SET_PROJECTS, SET_CURRENT_PROJECT } from './actionTypes'
 import axios from 'axios';
 
 export const setBugs = (bugs) => {
@@ -29,21 +29,52 @@ export const setBugWithId = (modifedBug) => {
     }
 }
 
-export const getAllStatusesAndBugs = () => {
+export const switchProject = (projectId) => {
+    return (dispatch) => {
+        dispatch(setCurrentProject(projectId));
+        dispatch(getAllStatusesAndBugs(projectId));
+        dispatch(bugClicked(null));
+    }
+}
+
+export const getAllStatusesAndBugs = (projectId) => {
     return (dispatch) => {
         dispatch(startGettingAllBugs());
-        axios.get('http://localhost:8080/statuses')
+        axios.get(`http://localhost:8080/statuses/${projectId}`)
             .then(({ data }) => {
                 dispatch(setStatuses(data))
-                dispatch(getAllBugs())
+                dispatch(getLabels(projectId));
+                dispatch(getAllBugs(projectId))
             });
+    }
+}
+
+export const setProjects = (projects) => {
+    return {
+        type: SET_PROJECTS,
+        projects
+    }
+}
+
+export const setCurrentProject = (projectId) => {
+    return {
+        type: SET_CURRENT_PROJECT,
+        projectId
     }
 }
 
 export const setupAllInitialData = () => {
     return dispatch => {
-        dispatch(getLabels());
-        dispatch(getAllStatusesAndBugs());
+        axios.get(`http://localhost:8080/projects/currentUser`)
+            .then(({ data: projects }) => {
+                dispatch(setProjects(projects));
+                if (projects.length > 0) {
+                    const initiallySelectedProjectId = projects[0].id;
+                    dispatch(setCurrentProject(initiallySelectedProjectId))
+                    dispatch(getLabels(initiallySelectedProjectId));
+                    dispatch(getAllStatusesAndBugs(initiallySelectedProjectId));
+                }
+            })
     }
 }
 
@@ -53,17 +84,17 @@ export const startGettingAllBugs = () => {
     }
 }
 
-export const getAllBugs = () => {
+export const getAllBugs = (projectId) => {
     return (dispatch) => {
         dispatch(startGettingAllBugs());
-        axios.get('http://localhost:8080/bugs')
+        axios.get(`http://localhost:8080/bugs/${projectId}`)
             .then(({ data }) => dispatch(setBugs(data)));
     }
 }
 
-export const createBug = (newBugWithStatus) => {
+export const createBug = (projectId, newBugWithStatus) => {
     return (dispatch) => {
-        axios.post('http://localhost:8080/bugs', newBugWithStatus)
+        axios.post(`http://localhost:8080/bugs/${projectId}`, newBugWithStatus)
             .then(({ data: createdBug }) => dispatch(addBug(createdBug)));
     }
 }
@@ -132,9 +163,9 @@ export const setUserNames = (usernames) => {
     }
 }
 
-export const getUserNames = () => {
+export const getUserNames = (projectId) => {
     return (dispatch) => {
-        axios.get("http://localhost:8080/users/namesAndUsernames")
+        axios.get(`http://localhost:8080/users/namesAndUsernames/${projectId}`)
             .then(({ data }) => dispatch(setUserNames(data)))
     }
 }
@@ -172,9 +203,9 @@ export const startUpdatingBugLabels = (bugId, aNewBugLabels) => {
     }
 }
 
-export const getLabels = () => {
+export const getLabels = (projectId) => {
     return (dispatch) => {
-        axios.get("http://localhost:8080/labels")
+        axios.get(`http://localhost:8080/labels/project/${projectId}`)
             .then(({ data }) => dispatch(setLabels(data)));
     }
 }
@@ -186,9 +217,9 @@ export const setLabels = (labels) => {
     }
 }
 
-export const startCreatingNewSwimLane = (swimLane) => {
+export const startCreatingNewSwimLane = (projectId, swimLane) => {
     return (dispatch) => {
-        axios.post('http://localhost:8080/statuses',
+        axios.post(`http://localhost:8080/statuses/${projectId}`,
             {
                 statusName: swimLane.swimLaneName,
                 statusColor: swimLane.swimLaneColor
@@ -215,9 +246,9 @@ export const reorderStatuses = (fromIndex, toIndex) => {
     }
 }
 
-export const startDeletingSwimlane = (statusName) => {
+export const startDeletingSwimlane = (statusId, statusName) => {
     return (dispatch) => {
-        axios.delete(`http://localhost:8080/statuses/${statusName}`)
+        axios.delete(`http://localhost:8080/statuses/${statusId}`)
             .then(() => dispatch(deleteSwimLane(statusName)))
             .catch(() => { });
     }
@@ -230,9 +261,9 @@ export const deleteSwimLane = (statusName) => {
     }
 }
 
-export const startUpdatingSwimlaneName = (oldSwimLaneName, newSwimLaneName) => {
+export const startUpdatingSwimlaneName = (swimLaneId, oldSwimLaneName, newSwimLaneName) => {
     return (dispatch) => {
-        axios.put(`http://localhost:8080/statuses/${oldSwimLaneName}/name`, {
+        axios.put(`http://localhost:8080/statuses/${swimLaneId}/name`, {
             statusName: newSwimLaneName
         }).then(() => {
             dispatch(updateSwimLaneName(oldSwimLaneName, newSwimLaneName))
@@ -250,9 +281,9 @@ export const updateSwimLaneName = (oldSwimLaneName, newSwimLaneName) => {
     }
 }
 
-export const startUpdatingSwimlaneColor = (swimlaneName, newSwimlaneColor) => {
+export const startUpdatingSwimlaneColor = (swimLaneId, swimlaneName, newSwimlaneColor) => {
     return (dispatch) => {
-        axios.put(`http://localhost:8080/statuses/${swimlaneName}/color`, {
+        axios.put(`http://localhost:8080/statuses/${swimLaneId}/color`, {
             statusColor: newSwimlaneColor
         }).then(() => {
             dispatch(updateSwimlaneColor(swimlaneName, newSwimlaneColor))
@@ -282,9 +313,9 @@ export const labelCreationAbandoned = () => {
     }
 }
 
-export const startCreatingNewLabel = (newLabelName, newLabelColor, successCallback) => {
+export const startCreatingNewLabel = (projectId, newLabelName, newLabelColor, successCallback) => {
     return (dispatch) => {
-        axios.post('http://localhost:8080/labels', {
+        axios.post(`http://localhost:8080/labels/${projectId}`, {
             labelName: newLabelName,
             labelColor: newLabelColor
         })

@@ -52,7 +52,11 @@ class ProjectSettings extends Component {
     }
 
     onNewLabelDialogConfirm = (newLabelName, newLabelColor) => {
-        this.props.dispatch(startCreatingNewLabel(newLabelName, newLabelColor, this.closeNewLabelDialog));
+        this.props.dispatch(startCreatingNewLabel(
+            this.props.currentProjectId,
+            newLabelName,
+            newLabelColor,
+            this.closeNewLabelDialog));
     }
 
     newValueThenWrongWasInserted = () => {
@@ -173,6 +177,7 @@ class ProjectSettings extends Component {
 
 const mapStateToProps = state => ({
     labels: state.bugs.labels,
+    currentProjectId: state.bugs.currentProjectId,
     doesNewLabelAlreadyExist: state.bugs.doesNewLabelAlreadyExist,
     isUserPM: state.security.isPM,
     predefinedRoles: state.security.predefinedRoles

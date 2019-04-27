@@ -42,21 +42,31 @@ class Statistics extends PureComponent {
         }
     }
 
-    componentDidMount() {
-        axios.get("http://localhost:8080/statistics/byLabels")
+    _loadStatistics = () => {
+        axios.get(`http://localhost:8080/statistics/byLabels/${this.props.currentProjectId}`)
             .then(({ data }) => {
                 this.setState({
                     statisticsByLabels: data
                 })
             })
 
-        axios.get("http://localhost:8080/bugs/closedStatistics")
+        axios.get(`http://localhost:8080/bugs/closedStatistics/${this.props.currentProjectId}`)
             .then(({ data }) => {
                 console.log(data)
                 this.setState({
                     closeTimeStatistics: data
                 })
             })
+    }
+
+    componentDidMount() {
+        this._loadStatistics();
+    }
+    
+    componentDidUpdate(prevProps) {
+        if (prevProps.currentProjectId !== this.props.currentProjectId) {
+            this._loadStatistics();
+        }
     }
 
     onMouseOverLabelName = (labelName, labelIndex) => event => {
@@ -154,7 +164,8 @@ class Statistics extends PureComponent {
 }
 
 export default connect(state => ({
-    statuses: state.bugs.statuses
+    statuses: state.bugs.statuses,
+    currentProjectId: state.bugs.currentProjectId
 }))(Statistics);
 
 const timeUnitsColors = {
