@@ -295,10 +295,14 @@ class ResponsiveDrawer extends React.Component {
                                 <ListItemIcon> <InboxIcon /></ListItemIcon>
                                 <ListItemText primary="Statistics" />
                             </ListItem>
-                            <ListItem button key="projectSettingsListItem" onClick={() => this.props.history.push("/projectSettings")}>
-                                <ListItemIcon> <InboxIcon /></ListItemIcon>
-                                <ListItemText primary="Project settings" />
-                            </ListItem>
+                            {this.props.isDEV ?
+                                <ListItem button key="projectSettingsListItem" onClick={() => this.props.history.push("/projectSettings")}>
+                                    <ListItemIcon> <InboxIcon /></ListItemIcon>
+                                    <ListItemText primary="Project settings" />
+                                </ListItem>
+                                :
+                                null
+                            }
                         </List>
                     </Grid>
                     <Grid item>
@@ -471,7 +475,8 @@ const mapStateToProps = state => ({
     username: state.security.username,
     loggedInUserName: state.security.loggedInUserName,
     projects: state.bugs.projects,
-    notAuthorizedMessage: state.bugs.notAuthorizedMessage
+    notAuthorizedMessage: state.bugs.notAuthorizedMessage,
+    isDEV: state.security.isDev
 })
 
 export default withStyles(styles, { withTheme: true })(withRouter(connect(mapStateToProps)(ResponsiveDrawer)));
