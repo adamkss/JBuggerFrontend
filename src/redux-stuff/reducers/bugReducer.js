@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG, CLOSE_CURRENT_BUG, SUCCESFULLY_SUBSCRIBED_TO_BUG, SUCCESFULLY_UNSUBSCRIBED_TO_BUG, SET_PROJECTS, SET_CURRENT_PROJECT } from '../actions/actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG, CLOSE_CURRENT_BUG, SUCCESFULLY_SUBSCRIBED_TO_BUG, SUCCESFULLY_UNSUBSCRIBED_TO_BUG, SET_PROJECTS, SET_CURRENT_PROJECT, MOVE_BUG_FAILED, NOT_AUTHORIZED, NOT_AUTHORIZED_CONFIRMED } from '../actions/actionTypes'
 
 const initialState = {
     projects: [],
@@ -18,7 +18,8 @@ const initialState = {
     labels: [],
     movingBugOldStatus: null,
     movingBugNewStatus: null,
-    doesNewLabelAlreadyExist: false
+    doesNewLabelAlreadyExist: false,
+    notAuthorizedMessage: null
 }
 
 const addBugByStatus = function (oldBugsByStatus, newBug) {
@@ -276,6 +277,14 @@ const bugReducer = (state = initialState, action) => {
                 movingBugNewStatus: newStatus
             }
         }
+        case MOVE_BUG_FAILED: {
+            return {
+                ...state,
+                waitingForBugStatusUpdate: false,
+                movingBugNewStatus: null,
+                movingBugOldStatus: null
+            }
+        }
         case MOVE_BUG_VISUALLY: {
             if (action.data.oldStatus === action.data.newStatus)
                 return {
@@ -513,10 +522,22 @@ const bugReducer = (state = initialState, action) => {
                 projects: action.projects
             }
         }
-        case SET_CURRENT_PROJECT : {
+        case SET_CURRENT_PROJECT: {
             return {
                 ...state,
                 currentProjectId: action.projectId
+            }
+        }
+        case NOT_AUTHORIZED: {
+            return {
+                ...state,
+                notAuthorizedMessage: action.message
+            }
+        }
+        case NOT_AUTHORIZED_CONFIRMED: {
+            return {
+                ...state,
+                notAuthorizedMessage: null
             }
         }
         default:

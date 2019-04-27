@@ -34,13 +34,14 @@ import Grid from '@material-ui/core/Grid';
 import GenericModal from './GenericModal';
 import CreateSwimLaneModalContent from './CreateSwimLaneModalContent';
 import { connect } from 'react-redux';
-import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllInitialData, getAllStatusesAndBugs, switchProject } from './redux-stuff/actions/actionCreators';
+import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllInitialData, getAllStatusesAndBugs, switchProject, notAuthorizedConfirmed } from './redux-stuff/actions/actionCreators';
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
 import axios from 'axios';
 import NotificationsPopover from './popovers/NotificationsPopover';
 import { Select } from '@material-ui/core';
 import './Home.css';
+import NotAuthorizedPopup from './popovers/NotAuthorizedPopup';
 
 const drawerWidth = 240;
 
@@ -442,6 +443,16 @@ class ResponsiveDrawer extends React.Component {
                     onClose={this.closeNotificationsPopover}
                     notifications={this.state.notifications}
                     getNotificationRelatedToBugClicked={this.getNotificationRelatedToBugClicked} />
+
+                {this.props.notAuthorizedMessage ?
+                    <NotAuthorizedPopup
+                        message={this.props.notAuthorizedMessage}
+                        onConfirm={() => {
+                            this.props.dispatch(notAuthorizedConfirmed())
+                        }} />
+                    :
+                    null
+                }
             </div>
         );
     }
@@ -459,7 +470,8 @@ const mapStateToProps = state => ({
     currentProjectId: state.bugs.currentProjectId,
     username: state.security.username,
     loggedInUserName: state.security.loggedInUserName,
-    projects: state.bugs.projects
+    projects: state.bugs.projects,
+    notAuthorizedMessage: state.bugs.notAuthorizedMessage
 })
 
 export default withStyles(styles, { withTheme: true })(withRouter(connect(mapStateToProps)(ResponsiveDrawer)));
