@@ -10,7 +10,7 @@ import { Button } from '@material-ui/core';
 import BugDetailsModal from './BugDetailsModal';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { createBug, filterBugs, getAllStatuses, closeModal, setBugs, setBugWithId, startUpdatingBug, reorderStatuses, startDeletingSwimlane, startUpdatingSwimlaneName, startUpdatingSwimlaneColor, bugClicked } from './redux-stuff/actions/actionCreators';
+import { createBug, filterBugs, getAllStatuses, closeModal, setBugs, setBugWithId, startUpdatingBug, reorderStatuses, startDeletingSwimlane, startUpdatingSwimlaneName, startUpdatingSwimlaneColor, bugClicked, waitingForGeneralUpdate, finishedWaitingForGeneralUpdate, notAuthorized } from './redux-stuff/actions/actionCreators';
 import UnmountingDelayed from './UnmountingDelayed';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import ConfirmBugColumnDeletionDialog from './popovers/ConfirmBugColumnDeletionDialog';
@@ -226,10 +226,20 @@ class BugsOverview extends Component {
     const newOrder = result.destination.index;
 
     this.props.dispatch(reorderStatuses(oldOrder, newOrder));
+    this.props.dispatch(waitingForGeneralUpdate())
     axios.put(`http://localhost:8080/statuses/${this.props.currentProjectId}/order`, {
       oldOrder,
       newOrder
-    });
+    }).then(() => {
+      this.props.dispatch(finishedWaitingForGeneralUpdate());
+    })
+    .catch((err) => {
+      if (err.response.status === 403) {
+        this.props.dispatch(reorderStatuses(newOrder, oldOrder));
+          this.props.dispatch(notAuthorized("You are not authorized to move swimlanes."));
+          this.props.dispatch(finishedWaitingForGeneralUpdate());
+        }
+      });
   }
 
   openConfirmBugColumnCreationDialog = () => {
@@ -344,7 +354,7 @@ class BugsOverview extends Component {
     return (
       <div className="parent-relative" tabIndex="0" onKeyDown={this.onKeyPressed}>
 
-        {this.props.waitingForBugLoading ?
+        {this.props.waitingForBugLoading || this.props.waitingForGeneralUpdate ?
           <div className="loadinge-image-wrapper">
             <div className="loading-image-wrapper__background" />
           </div>
@@ -495,7 +505,8 @@ const mapStateToProps = state => ({
   movingBugOldStatus: state.bugs.movingBugOldStatus,
   movingBugNewStatus: state.bugs.movingBugNewStatus,
   currentProjectId: state.bugs.currentProjectId,
-  isPM: state.security.isPM
+  isPM: state.security.isPM,
+  waitingForGeneralUpdate: state.bugs.waitingForGeneralUpdate
 });
 
 export default withStyles(styles)(withRouter(connect(mapStateToProps)(BugsOverview)));
