@@ -42,7 +42,7 @@ class Statistics extends PureComponent {
         }
     }
 
-    componentDidMount() {
+    _loadStatistics = () => {
         axios.get(`http://localhost:8080/statistics/byLabels/${this.props.currentProjectId}`)
             .then(({ data }) => {
                 this.setState({
@@ -57,6 +57,16 @@ class Statistics extends PureComponent {
                     closeTimeStatistics: data
                 })
             })
+    }
+
+    componentDidMount() {
+        this._loadStatistics();
+    }
+    
+    componentDidUpdate(prevProps) {
+        if (prevProps.currentProjectId !== this.props.currentProjectId) {
+            this._loadStatistics();
+        }
     }
 
     onMouseOverLabelName = (labelName, labelIndex) => event => {
