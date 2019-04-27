@@ -29,7 +29,6 @@ class BugsColumnHeader extends Component {
   }
 
   componentDidMount() {
-
   }
 
   render() {
@@ -59,16 +58,19 @@ class BugsColumnHeader extends Component {
               <AddIcon />
             </IconButton>
           </Grid>
-          <Grid item>
-            <IconButton
-              className="small-custom-padding-left-right"
-              color="inherit"
-              aria-label="Other"
-              onClick={this.props.onMoreOptions}
-            >
-              <MoreVertIcon />
-            </IconButton>
-          </Grid>
+          {this.props.areMoreOptionsShown ?
+            <Grid item>
+              <IconButton
+                className="small-custom-padding-left-right"
+                color="inherit"
+                aria-label="Other"
+                onClick={this.props.onMoreOptions}
+              >
+                <MoreVertIcon />
+              </IconButton>
+            </Grid>
+            :
+            null}
         </Grid>
         <Grid item>
           <Divider />

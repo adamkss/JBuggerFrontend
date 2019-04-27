@@ -62,6 +62,7 @@ class BugsColumn extends PureComponent {
             status={StringFormatters.ToNiceBugStatus(this.props.bugStatus)}
             statusColor={this.props.statusColor}
             onAddBug={this.props.onAddBug}
+            areMoreOptionsShown={this.props.isEditable}
             onMoreOptions={this.props.onMoreOptions} />
 
           <div className="bugs-column__content">

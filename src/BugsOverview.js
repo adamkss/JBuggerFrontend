@@ -373,13 +373,17 @@ class BugsOverview extends Component {
             onClick={this.onCreateBugButtonClick}>
             New bug
             </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            className="margin-left"
-            onClick={this.onNewSwimlaneClick}>
-            New swimlane
+          {this.props.isPM ?
+            <Button
+              variant="contained"
+              color="primary"
+              className="margin-left"
+              onClick={this.onNewSwimlaneClick}>
+              New swimlane
             </Button>
+            :
+            null
+          }
         </div>
         <DragDropContext onDragEnd={this.onDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
@@ -400,6 +404,7 @@ class BugsOverview extends Component {
                         onBugDrop={this.bugDropped}
                         isPossibleDropTarget={this.state.draggingBugFromStatus && this.state.draggingBugFromStatus !== bugStatus.statusName}
                         waitingForBugLoading={bugStatus.statusName === this.props.movingBugOldStatus || bugStatus.statusName === this.props.movingBugNewStatus}
+                        isEditable={this.props.isPM}
                       />
                     )}
                   </Draggable>
@@ -489,7 +494,8 @@ const mapStateToProps = state => ({
   activeBugToModifyID: state.bugs.activeBugToModifyID,
   movingBugOldStatus: state.bugs.movingBugOldStatus,
   movingBugNewStatus: state.bugs.movingBugNewStatus,
-  currentProjectId: state.bugs.currentProjectId
+  currentProjectId: state.bugs.currentProjectId,
+  isPM: state.security.isPM
 });
 
 export default withStyles(styles)(withRouter(connect(mapStateToProps)(BugsOverview)));
