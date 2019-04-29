@@ -17,6 +17,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import SearchIcon from '@material-ui/icons/Search';
 import BugReport from '@material-ui/icons/BugReport';
 import SettingsIcon from '@material-ui/icons/Settings';
+import SettingsApplicationsIcon from '@material-ui/icons/SettingsApplications';
 import BarChart from '@material-ui/icons/BarChart';
 import MoreIcon from '@material-ui/icons/More';
 import { fade } from '@material-ui/core/styles/colorManipulator';
@@ -45,6 +46,7 @@ import NotificationsPopover from './popovers/NotificationsPopover';
 import { Select } from '@material-ui/core';
 import './Home.css';
 import NotAuthorizedPopup from './popovers/NotAuthorizedPopup';
+import GlobalSettings from './GlobalSettings';
 
 const drawerWidth = 240;
 
@@ -306,6 +308,14 @@ class ResponsiveDrawer extends React.Component {
                                 :
                                 null
                             }
+                            {this.props.isAdmin ?
+                                <ListItem button key="globalSettingsListItem" onClick={() => this.props.history.push("/globalSettings")}>
+                                    <ListItemIcon> <SettingsIcon /></ListItemIcon>
+                                    <ListItemText primary="Global settings" />
+                                </ListItem>
+                                :
+                                null
+                            }
                         </List>
                     </Grid>
                     <Grid item>
@@ -432,7 +442,24 @@ class ResponsiveDrawer extends React.Component {
                     <Route
                         exact
                         path={`${this.props.match.path}projectSettings`}
-                        component={ProjectSettings} />
+                        render={(props) => {
+                            if (!this.props.isDEV)
+                                return <Redirect to="/" />
+                            else
+                                return <ProjectSettings />
+                        }
+                        } />
+                    <Route
+                        exact
+                        path={`${this.props.match.path}globalSettings`}
+                        render={(props) => {
+                            if (!this.props.isAdmin)
+                                return <Redirect to="/" />
+                            else
+                                return <GlobalSettings />
+                        }
+                        } />
+
                 </main>
 
                 {this.state.modalOpened ?
@@ -479,7 +506,9 @@ const mapStateToProps = state => ({
     loggedInUserName: state.security.loggedInUserName,
     projects: state.bugs.projects,
     notAuthorizedMessage: state.bugs.notAuthorizedMessage,
-    isDEV: state.security.isDev
+    isDEV: state.security.isDev,
+    isAdmin: state.security.isAdmin,
+    isTester: state.security.isTester
 })
 
 export default withStyles(styles, { withTheme: true })(withRouter(connect(mapStateToProps)(ResponsiveDrawer)));
