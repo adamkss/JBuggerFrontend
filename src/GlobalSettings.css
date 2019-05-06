@@ -1,0 +1,16 @@
+.gs-wrapper { 
+    width: 500px;
+    min-height: 500px;
+    display: flex;
+    flex-direction: row;
+}
+
+.gs__assigned-users{
+    overflow: auto;
+    flex-grow: 1;
+}
+
+.gs__unassigned-users{
+    overflow: auto;
+    flex-grow: 1;
+}

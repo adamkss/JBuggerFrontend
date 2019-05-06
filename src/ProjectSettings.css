@@ -8,5 +8,4 @@
 .settings-container__labels-container{
     display: flex;
     flex-direction: row;
-    align-items: center;
 }
