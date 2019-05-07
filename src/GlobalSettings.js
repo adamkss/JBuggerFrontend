@@ -81,6 +81,13 @@ class GlobalSettings extends Component {
             })
     }
 
+    getCallbackOnDeleteProject = projectId => () => {
+        axios.delete(`http://localhost:8080/projects/${projectId}`)
+            .then(() => {
+                this.loadCurrentlyEditedProjectData();
+            })
+    }
+
     render() {
         return (
             <>
@@ -103,7 +110,7 @@ class GlobalSettings extends Component {
                                             <IconButton onClick={this.getCallbackOnEditProject(project.id)}>
                                                 <PeopleIcon />
                                             </IconButton>
-                                            <IconButton>
+                                            <IconButton onClick={this.getCallbackOnDeleteProject(project.id)}>
                                                 <DeleteIcon />
                                             </IconButton>
                                         </ListItemSecondaryAction>
