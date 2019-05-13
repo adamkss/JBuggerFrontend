@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react'
-import BarChart from './BarChart';
 import PieChart from './PieChart/index';
 import styled from 'styled-components';
 import { Typography, Paper, List, ListItem, ListItemText, Divider } from '@material-ui/core';
@@ -7,7 +6,7 @@ import axios from 'axios';
 import './Statistics.css';
 import ProjectSettingsSection from './ProjectSettingsSection';
 import AnimatedNumber from 'react-animated-number';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { BarChart, Bar, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import { connect } from 'react-redux';
 import LabelShort from './LabelShort';
@@ -39,6 +38,11 @@ class Statistics extends PureComponent {
         activeLabelIndex: -1,
         closeTimeStatistics: {
             bugStatistics: []
+        },
+        userStatistics: {
+            createdMostBugs: [],
+            solvedLeastBugs: [],
+            solvedMostBugs: []
         }
     }
 
@@ -57,12 +61,33 @@ class Statistics extends PureComponent {
                     closeTimeStatistics: data
                 })
             })
+
+        axios.get(`http://localhost:8080/statistics/byUsers/${this.props.currentProjectId}`)
+            .then(({ data }) => {
+                this.setState({
+                    userStatistics: {
+                        createdMostBugs: data.createdMostBugs.slice(0, 3).map(data => ({
+                            name: data.username,
+                            bugs: data.number
+                        })),
+                        solvedLeastBugs: data.solvedLeastBugs.slice(0, 3).map(data => ({
+                            name: data.username,
+                            bugs: data.number
+                        })),
+                        solvedMostBugs: data.solvedMostBugs.slice(0, 3).map(data => ({
+                            name: data.username,
+                            bugs: data.number
+                        }))
+                    }
+                })
+
+            })
     }
 
     componentDidMount() {
         this._loadStatistics();
     }
-    
+
     componentDidUpdate(prevProps) {
         if (prevProps.currentProjectId !== this.props.currentProjectId) {
             this._loadStatistics();
@@ -157,6 +182,11 @@ class Statistics extends PureComponent {
                             statuses={this.props.statuses} />
                         :
                         null}
+                </ProjectSettingsSection>
+                <ProjectSettingsSection sectionName="User statistics" horizontalContent centered>
+                    <UserStatistics data={this.state.userStatistics.createdMostBugs} />
+                    <UserStatistics data={this.state.userStatistics.solvedLeastBugs} />
+                    <UserStatistics data={this.state.userStatistics.solvedMostBugs} />
                 </ProjectSettingsSection>
             </div>
         )
@@ -404,5 +434,30 @@ class MountingDelay extends React.PureComponent {
         return <div style={style}>
             {this.props.children}
         </div>
+    }
+}
+
+class UserStatistics extends React.PureComponent {
+    componentDidMount() {
+
+    }
+    render() {
+        return (
+            <BarChart
+                width={500}
+                height={300}
+                data={this.props.data}
+                margin={{
+                    top: 5, right: 30, left: 20, bottom: 5,
+                }}
+            >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="bugs" fill="#8884d8" />
+            </BarChart>
+        )
     }
 }
