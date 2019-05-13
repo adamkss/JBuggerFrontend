@@ -6,7 +6,7 @@ import { withStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import InputBase from '@material-ui/core/InputBase';
 import './BugsOverview.css';
-import { Button } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 import BugDetailsModal from './BugDetailsModal';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -233,9 +233,9 @@ class BugsOverview extends Component {
     }).then(() => {
       this.props.dispatch(finishedWaitingForGeneralUpdate());
     })
-    .catch((err) => {
-      if (err.response.status === 403) {
-        this.props.dispatch(reorderStatuses(newOrder, oldOrder));
+      .catch((err) => {
+        if (err.response.status === 403) {
+          this.props.dispatch(reorderStatuses(newOrder, oldOrder));
           this.props.dispatch(notAuthorized("You are not authorized to move swimlanes."));
           this.props.dispatch(finishedWaitingForGeneralUpdate());
         }
@@ -395,10 +395,25 @@ class BugsOverview extends Component {
             null
           }
         </div>
+
         <DragDropContext onDragEnd={this.onDragEnd}>
           <Droppable droppableId="droppable" direction="horizontal">
             {(provided, snapshot) => (
               <div className="bugs-overview" ref={provided.innerRef} {...provided.droppableProps}>
+                {!this.props.currentProjectId ?
+                  <div style={
+                    {
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'center'
+                    }
+                  }>
+                    <Typography>
+                      No data here.
+                      </Typography>
+                  </div>
+                  :
+                  null}
                 {this.props.statuses.map((bugStatus, index) => (
                   <Draggable key={bugStatus.statusName} draggableId={bugStatus.statusName} index={index}>
                     {(provided, snapshot) => (
