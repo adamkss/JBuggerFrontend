@@ -190,8 +190,7 @@ class NewUserDialog extends React.PureComponent {
         name: '',
         email: '',
         phoneNumber: '',
-        role: '',
-        password: ''
+        role: ''
     }
 
     handleCancel = () => {
@@ -203,8 +202,7 @@ class NewUserDialog extends React.PureComponent {
             name: this.state.name,
             email: this.state.email,
             phoneNumber: this.state.phoneNumber,
-            role: this.state.role,
-            password: this.state.password
+            role: this.state.role
         });
     };
 
@@ -249,10 +247,6 @@ class NewUserDialog extends React.PureComponent {
                                 <MenuItem key={role} value={role}>{role}</MenuItem>
                             )}
                         </Select>
-                        <Input
-                            value={this.state.password}
-                            placeholder="Password:"
-                            onChange={this.handleInputChange('password')} />
                     </div>
                 </DialogContent>
                 <DialogActions>

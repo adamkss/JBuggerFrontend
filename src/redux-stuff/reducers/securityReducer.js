@@ -1,4 +1,4 @@
-import { LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED } from "../actions/actionTypes";
+import { LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, CHANGED_INITIAL_PASSWORD } from "../actions/actionTypes";
 import { getRolesFromInitialRole } from '../../utils/RolesHelper';
 import jwtDecode from 'jwt-decode';
 
@@ -15,7 +15,8 @@ export const getInitialState = () => ({
     isTM: false,
     isDev: false,
     isTester: false,
-    predefinedRoles: ["ROLE_TEST", "ROLE_DEV", "ROLE_TM", "ROLE_PM", "ROLE_ADM"]
+    predefinedRoles: ["ROLE_TEST", "ROLE_DEV", "ROLE_TM", "ROLE_PM", "ROLE_ADM"],
+    isPasswordChangeNeeded: false
 });
 
 const securityReducer = (state = {}, action) => {
@@ -31,6 +32,7 @@ const securityReducer = (state = {}, action) => {
                 isUsernameOrPasswordIncorrect: false,
                 isTokenExpired: false,
                 roles,
+                isPasswordChangeNeeded: action.data.isFirstTimeLogin,
                 ...getRolesFromInitialRole(roles[0])
             }
         case CLEAR_LOGIN_DATA:
@@ -51,6 +53,12 @@ const securityReducer = (state = {}, action) => {
             }
         case TOKEN_EXPIRED:
             return getInitialState();
+        case CHANGED_INITIAL_PASSWORD: {
+            return {
+                ...state,
+                isPasswordChangeNeeded: false
+            }
+        }
         default: return state;
     }
 

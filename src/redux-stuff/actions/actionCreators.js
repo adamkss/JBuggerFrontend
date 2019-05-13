@@ -1,4 +1,4 @@
-import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG, CLOSE_CURRENT_BUG, SUCCESFULLY_SUBSCRIBED_TO_BUG, SUCCESFULLY_UNSUBSCRIBED_TO_BUG, SET_PROJECTS, SET_CURRENT_PROJECT, MOVE_BUG_FAILED, NOT_AUTHORIZED, NOT_AUTHORIZED_CONFIRMED, WAITING_FOR_GENERAL_UPDATE, FINISHED_WAITING_FOR_GENERAL_UPDATE } from './actionTypes'
+import { SET_BUGS, ADD_BUG, FILTER_BUGS, MOVE_BUG_VISUALLY, SET_STATUSES, BUG_CLICKED, CLOSE_MODAL, SET_USER_NAMES, SET_BUG, UPDATE_CURRENTLY_ACTIVE_BUG, SET_LABELS, CREATE_SWIMLANE, REORDER_STATUSES, DELETE_SWIMLANE_WITH_BUGS, UPDATE_SWIMLANE_NAME, UPDATE_SWIMLANE_COLOR, CREATE_LABEL, DELETE_ATTACHMENT, ADD_ATTACHMENT_INFO, LOGIN_SUCCESSFULL, CLEAR_LOGIN_DATA, LOGIN_FAILED, TOKEN_EXPIRED, START_GETTING_BUGS, WAITING_FOR_BUG_STATUS_UPDATE, NEW_LABEL_ALREADY_EXISTS, LABEL_CREATION_ABANDONED, DELETE_CURRENTLY_ACTIVE_BUG, CLOSE_CURRENT_BUG, SUCCESFULLY_SUBSCRIBED_TO_BUG, SUCCESFULLY_UNSUBSCRIBED_TO_BUG, SET_PROJECTS, SET_CURRENT_PROJECT, MOVE_BUG_FAILED, NOT_AUTHORIZED, NOT_AUTHORIZED_CONFIRMED, WAITING_FOR_GENERAL_UPDATE, FINISHED_WAITING_FOR_GENERAL_UPDATE, CHANGED_INITIAL_PASSWORD } from './actionTypes'
 import axios from 'axios';
 
 export const setBugs = (bugs) => {
@@ -442,7 +442,7 @@ export const tryLogin = (isRememberMeNeeded, username, password) => {
 
                 setupAxios(response.accessToken, getTokenExpiredCallback(dispatch));
 
-                dispatch(loginSuccessfull(response.accessToken, response.username, response.name));
+                dispatch(loginSuccessfull(response.accessToken, response.username, response.name, response.firstTimeLogin));
             })
             .catch(() => {
                 dispatch(loginFailed())
@@ -450,13 +450,14 @@ export const tryLogin = (isRememberMeNeeded, username, password) => {
     }
 }
 
-export const loginSuccessfull = (token, username, loggedInUserName) => {
+export const loginSuccessfull = (token, username, loggedInUserName, isFirstTimeLogin) => {
     return {
         type: LOGIN_SUCCESSFULL,
         data: {
             username,
             token,
-            loggedInUserName
+            loggedInUserName,
+            isFirstTimeLogin
         }
     }
 }
@@ -568,5 +569,22 @@ export const waitingForGeneralUpdate = () => {
 export const finishedWaitingForGeneralUpdate = () => {
     return {
         type: FINISHED_WAITING_FOR_GENERAL_UPDATE
+    }
+}
+
+export const passwordChangedSuccessfully = () => {
+    return {
+        type: CHANGED_INITIAL_PASSWORD
+    }
+}
+
+export const startChangingNewPassword = (newPassword) => {
+    return (dispatch) => {
+        axios.put(`http://localhost:8080/users/current/password`,
+            {
+                password: newPassword
+            }).then(() => {
+                dispatch(passwordChangedSuccessfully())
+            })
     }
 }

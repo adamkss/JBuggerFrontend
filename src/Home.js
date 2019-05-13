@@ -38,7 +38,7 @@ import Grid from '@material-ui/core/Grid';
 import GenericModal from './GenericModal';
 import CreateSwimLaneModalContent from './CreateSwimLaneModalContent';
 import { connect } from 'react-redux';
-import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllInitialData, getAllStatusesAndBugs, switchProject, notAuthorizedConfirmed } from './redux-stuff/actions/actionCreators';
+import { startCreatingNewSwimLane, getLabels, logout, getAllStatuses, setupAllInitialData, getAllStatusesAndBugs, switchProject, notAuthorizedConfirmed, startChangingNewPassword } from './redux-stuff/actions/actionCreators';
 import ProjectSettings from './ProjectSettings';
 import Statistics from './Statistics';
 import axios from 'axios';
@@ -47,6 +47,7 @@ import { Select } from '@material-ui/core';
 import './Home.css';
 import NotAuthorizedPopup from './popovers/NotAuthorizedPopup';
 import GlobalSettings from './GlobalSettings';
+import ChangeUserPasswordDialog from './popovers/ChangeUserPasswordDialog';
 
 const drawerWidth = 240;
 
@@ -232,6 +233,10 @@ class ResponsiveDrawer extends React.Component {
     onSelectProject = (projectId) => {
         this.props.dispatch(switchProject(projectId))
     }
+
+    onConfirmNewPassword = (newPassword) => {
+        this.props.dispatch(startChangingNewPassword(newPassword))
+    }   
 
     render() {
         const { classes, theme } = this.props;
@@ -487,6 +492,14 @@ class ResponsiveDrawer extends React.Component {
                     :
                     null
                 }
+
+                {this.props.isPasswordChangeNeeded ?
+                    <ChangeUserPasswordDialog
+                        onConfirm={this.onConfirmNewPassword}
+                    />
+                    :
+
+                    null}
             </div>
         );
     }
@@ -508,7 +521,8 @@ const mapStateToProps = state => ({
     notAuthorizedMessage: state.bugs.notAuthorizedMessage,
     isDEV: state.security.isDev,
     isAdmin: state.security.isAdmin,
-    isTester: state.security.isTester
+    isTester: state.security.isTester,
+    isPasswordChangeNeeded: state.security.isPasswordChangeNeeded
 })
 
 export default withStyles(styles, { withTheme: true })(withRouter(connect(mapStateToProps)(ResponsiveDrawer)));
