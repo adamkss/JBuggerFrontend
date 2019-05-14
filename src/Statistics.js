@@ -183,12 +183,38 @@ class Statistics extends PureComponent {
                         :
                         null}
                 </ProjectSettingsSection>
-                <ProjectSettingsSection sectionName="User statistics" horizontalContent centered>
-                    <UserStatistics data={this.state.userStatistics.createdMostBugs} />
-                    <UserStatistics data={this.state.userStatistics.solvedLeastBugs} />
-                    <UserStatistics data={this.state.userStatistics.solvedMostBugs} />
+                <ProjectSettingsSection sectionName="User statistics">
+                    <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        paddingTop: '10px'
+                    }}>
+                        <UserStatistics
+                            title="Top 3 users who introduced most bugs."
+                            data={this.state.userStatistics.createdMostBugs}
+                            barColor="#512DA8" />
+                        <UserStatistics
+                            title="Top 3 users who solved most bugs."
+                            data={this.state.userStatistics.solvedMostBugs}
+                            barColor="#303F9F" />
+                        <UserStatistics
+                            title="Top 3 users who solved least bugs."
+                            data={this.state.userStatistics.solvedLeastBugs}
+                            barColor="#455A64" />
+                    </div>
                 </ProjectSettingsSection>
-            </div>
+                <ProjectSettingsSection sectionName="Active bugs statistics">
+                    <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        justifyContent: 'center',
+                        paddingTop: '10px'
+                    }}>
+                       
+                    </div>
+                </ProjectSettingsSection>
+            </div >
         )
     }
 }
@@ -443,21 +469,31 @@ class UserStatistics extends React.PureComponent {
     }
     render() {
         return (
-            <BarChart
-                width={500}
-                height={300}
-                data={this.props.data}
-                margin={{
-                    top: 5, right: 30, left: 20, bottom: 5,
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="bugs" fill="#8884d8" />
-            </BarChart>
+            <div style={
+                {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }
+            }>
+                <BarChart
+                    width={350}
+                    height={300}
+                    data={this.props.data}
+                    margin={{
+                        top: 5, right: 30, left: 20, bottom: 5,
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="bugs" fill={this.props.barColor} />
+                </BarChart>
+                <Typography>{this.props.title}</Typography>
+            </div>
         )
     }
 }
