@@ -12,6 +12,8 @@ import { connect } from 'react-redux';
 import LabelShort from './LabelShort';
 import { getIconForSeverity } from './BugShortOverview';
 
+import DateRangePicker from '@wojtekmaj/react-daterange-picker';
+
 const LabelOpacityController = styled.div`
     opacity: ${props => props.isActive ? "1" : "0.5"};
     transition: opacity 0.2s;
@@ -43,7 +45,9 @@ class Statistics extends PureComponent {
             createdMostBugs: [],
             solvedLeastBugs: [],
             solvedMostBugs: []
-        }
+        },
+        activeBugsStatisticsDateRange: [new Date(), new Date()],
+        activeBugsStatistics: []
     }
 
     _loadStatistics = () => {
@@ -80,7 +84,15 @@ class Statistics extends PureComponent {
                         }))
                     }
                 })
+            })
+    }
 
+    _getActiveBugsStatistics = (startDate, endDate) => {
+        axios.get(`http://localhost:8080/statistics/activeBugs/${this.props.currentProjectId}/${startDate}/${endDate}`)
+            .then(({ data }) => {
+                this.setState({
+                    activeBugsStatistics: data
+                })
             })
     }
 
@@ -106,6 +118,24 @@ class Statistics extends PureComponent {
         })
     }
 
+    onActiveBugsStatisticsIntervalChange = (newInterval) => {
+        const yearStart = newInterval[0].getFullYear();
+        const dayStart = newInterval[0].getDate();
+        const monthStart = newInterval[0].getMonth() + 1;
+
+        const yearEnd = newInterval[1].getFullYear();
+        const dayEnd = newInterval[1].getDate();
+        const monthEnd = newInterval[1].getMonth() + 1;
+
+        const year = newInterval.getFullYear
+        this.setState({
+            activeBugsStatisticsDateRange: newInterval
+        })
+        this._getActiveBugsStatistics(
+            yearStart + "-" + monthStart + "-" + dayStart,
+            yearEnd + "-" + monthEnd + "-" + dayEnd
+        )
+    }
     render() {
         return (
             <div className="flexbox-vertical" style={{
@@ -204,14 +234,19 @@ class Statistics extends PureComponent {
                             barColor="#455A64" />
                     </div>
                 </ProjectSettingsSection>
-                <ProjectSettingsSection sectionName="Active bugs statistics">
+                <ProjectSettingsSection sectionName="Active bugs statistics" verticalContent>
+                    <DateRangePicker
+                        onChange={this.onActiveBugsStatisticsIntervalChange}
+                        value={this.state.activeBugsStatisticsDateRange}
+                    />
                     <div style={{
                         display: 'flex',
                         flexWrap: 'wrap',
                         justifyContent: 'center',
                         paddingTop: '10px'
                     }}>
-                       
+                        <ActiveBugsStatistics
+                            data={this.state.activeBugsStatistics} />
                     </div>
                 </ProjectSettingsSection>
             </div >
@@ -490,8 +525,43 @@ class UserStatistics extends React.PureComponent {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="bugs" fill={this.props.barColor} />
+                    <Bar name="Bugs" dataKey="bugs" fill={this.props.barColor} />
                 </BarChart>
+                <Typography>{this.props.title}</Typography>
+            </div>
+        )
+    }
+}
+
+class ActiveBugsStatistics extends React.PureComponent {
+    componentDidMount() {
+
+    }
+    render() {
+        return (
+            <div style={
+                {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }
+            }>
+                <LineChart
+                    width={800}
+                    height={300}
+                    data={this.props.data}
+                    margin={{
+                        top: 5, right: 30, left: 20, bottom: 5,
+                    }}
+                >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis axisLine={true} dataKey="date" angle={0} />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line dot={false} type="monotone" name="Bugs" dataKey="numberOfActiveBugs" stroke="#8884d8" />
+                </LineChart>
                 <Typography>{this.props.title}</Typography>
             </div>
         )
