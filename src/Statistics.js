@@ -256,7 +256,7 @@ class Statistics extends PureComponent {
                     </div>
                 </ProjectSettingsSection>
                 {this.state.minMaxBugsStatistics ?
-                    <ProjectSettingsSection sectionName="Min/max projects" verticalContent>
+                    <ProjectSettingsSection sectionName="Min/max projects" verticalContent centered>
                         <div style={{
                             display: 'flex',
                             flexWrap: 'wrap',
@@ -273,6 +273,22 @@ class Statistics extends PureComponent {
                         }}>
                             <Typography>Maximum project: {this.state.minMaxBugsStatistics.maxProjectName} - {this.state.minMaxBugsStatistics.maxProjectNr} bugs</Typography>
                         </div>
+                        <BarChart
+                            width={550}
+                            height={300}
+                            data={this.state.minMaxBugsStatistics.viewProjectShortOutDtos}
+                            margin={{
+                                top: 5, right: 30, left: 20, bottom: 5,
+                            }}
+                        >
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar name="Bugs" dataKey="nrOfBugs" fill="#900050" />
+
+                        </BarChart>
                     </ProjectSettingsSection>
                     :
                     null}
