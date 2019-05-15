@@ -47,7 +47,8 @@ class Statistics extends PureComponent {
             solvedMostBugs: []
         },
         activeBugsStatisticsDateRange: [new Date(), new Date()],
-        activeBugsStatistics: []
+        activeBugsStatistics: [],
+        minMaxBugsStatistics: null
     }
 
     _loadStatistics = () => {
@@ -60,7 +61,6 @@ class Statistics extends PureComponent {
 
         axios.get(`http://localhost:8080/bugs/closedStatistics/${this.props.currentProjectId}`)
             .then(({ data }) => {
-                console.log(data)
                 this.setState({
                     closeTimeStatistics: data
                 })
@@ -83,6 +83,12 @@ class Statistics extends PureComponent {
                             bugs: data.number
                         }))
                     }
+                })
+            })
+        axios.get(`http://localhost:8080/statistics/minMaxBugs`)
+            .then(({ data }) => {
+                this.setState({
+                    minMaxBugsStatistics: data
                 })
             })
     }
@@ -249,6 +255,27 @@ class Statistics extends PureComponent {
                             data={this.state.activeBugsStatistics} />
                     </div>
                 </ProjectSettingsSection>
+                {this.state.minMaxBugsStatistics ?
+                    <ProjectSettingsSection sectionName="Min/max projects" verticalContent>
+                        <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            paddingTop: '10px'
+                        }}>
+                            <Typography>Minimum project: {this.state.minMaxBugsStatistics.minProjectName} - {this.state.minMaxBugsStatistics.minProjectBugsNr} bugs</Typography>
+                        </div>
+                        <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                            paddingTop: '10px'
+                        }}>
+                            <Typography>Maximum project: {this.state.minMaxBugsStatistics.maxProjectName} - {this.state.minMaxBugsStatistics.maxProjectNr} bugs</Typography>
+                        </div>
+                    </ProjectSettingsSection>
+                    :
+                    null}
             </div >
         )
     }
