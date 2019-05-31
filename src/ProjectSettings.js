@@ -16,22 +16,12 @@ import Dialog from '@material-ui/core/Dialog';
 class ProjectSettings extends Component {
     state = {
         isNewLabelDialogOpen: false,
-        isCreateUserDialogOpen: false,
         allUsers: []
     }
 
-    loadUsers = () => {
-        axios.get("http://localhost:8080/users/adminInfo")
-            .then(({ data }) => {
-                this.setState({
-                    allUsers: data
-                })
-            })
-    }
+    
     componentDidMount = () => {
-        if (this.props.isUserPM) {
-            this.loadUsers();
-        }
+      
     }
 
     openNewLabelDialog = () => {
@@ -63,30 +53,6 @@ class ProjectSettings extends Component {
         this.props.dispatch(labelCreationAbandoned());
     }
 
-    onCreateUserPress = () => {
-        this.setState({
-            isCreateUserDialogOpen: true
-        })
-    }
-
-    closeCreateUserDialog = () => {
-        this.setState({
-            isCreateUserDialogOpen: false
-        })
-    }
-
-    onCreateUserConfirm = (newUser) => {
-        axios.post("http://localhost:8080/users", newUser)
-            .then(({ data: newUser }) => {
-                this.loadUsers();
-            })
-        this.closeCreateUserDialog();
-    }
-
-    onCreateUserCancel = () => {
-        this.closeCreateUserDialog();
-    }
-
     render() {
         return (
             <>
@@ -99,56 +65,7 @@ class ProjectSettings extends Component {
                         </div>
                     </ProjectSettingsSection>
 
-                    {this.props.isUserPM ?
-                        <ProjectSettingsSection sectionName="Users" verticalContent>
-                            <Paper style={{
-                                maxHeight: "400px",
-                                height: "40vh",
-                                overflow: "auto",
-                                maxWidth: "1250px",
-                                marginTop: "10px"
-                            }}>
-
-                                <Table style={{
-                                    width: "100%"
-                                }}>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>ID</TableCell>
-                                            <TableCell>Name</TableCell>
-                                            <TableCell>Phone number</TableCell>
-                                            <TableCell>Email</TableCell>
-                                            <TableCell>Role</TableCell>
-                                            <TableCell>Username</TableCell>
-                                            <TableCell>Bugs assigned</TableCell>
-                                            <TableCell>Activated</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {this.state.allUsers.map(user => (
-                                            <TableRow key={user.id}>
-                                                <TableCell>{user.id}</TableCell>
-                                                <TableCell>{user.name}</TableCell>
-                                                <TableCell>{user.phoneNumber}</TableCell>
-                                                <TableCell>{user.email}</TableCell>
-                                                <TableCell>{user.role}</TableCell>
-                                                <TableCell>{user.username}</TableCell>
-                                                <TableCell>{user.bugsAssignedToTheUserIds}</TableCell>
-                                                <TableCell>
-                                                    <Checkbox checked={user.userActivated}></Checkbox>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </Paper>
-                            <div>
-                                <Button variant="contained" style={{ marginTop: "10px" }} onClick={this.onCreateUserPress} >Create user</Button>
-                            </div>
-                        </ProjectSettingsSection>
-                        :
-                        null
-                    }
+                    
                 </div>
 
                 {this.state.isNewLabelDialogOpen ?
@@ -161,15 +78,7 @@ class ProjectSettings extends Component {
                     null
                 }
 
-                {this.state.isCreateUserDialogOpen ?
-                    <NewUserDialog
-                        onConfirm={this.onCreateUserConfirm}
-                        onCancel={this.onCreateUserCancel}
-                        roles={this.props.predefinedRoles}
-                    />
-                    :
-                    null
-                }
+               
             </>
         )
     }
@@ -184,82 +93,3 @@ const mapStateToProps = state => ({
 });
 
 export default connect(mapStateToProps)(ProjectSettings);
-
-class NewUserDialog extends React.PureComponent {
-    state = {
-        name: '',
-        email: '',
-        phoneNumber: '',
-        role: ''
-    }
-
-    handleCancel = () => {
-        this.props.onCancel();
-    };
-
-    handleOk = () => {
-        this.props.onConfirm({
-            name: this.state.name,
-            email: this.state.email,
-            phoneNumber: this.state.phoneNumber,
-            role: this.state.role
-        });
-    };
-
-    handleInputChange = inputName => event => {
-        this.setState({
-            [inputName]: event.target.value
-        })
-    }
-
-    render() {
-        return (
-            <Dialog
-                disableBackdropClick
-                disableEscapeKeyDown
-                maxWidth="md"
-                aria-labelledby="confirmation-dialog-title"
-                open={true}
-            >
-                <DialogTitle id="confirmation-dialog-title">Add user</DialogTitle>
-                <DialogContent>
-                    <div className="flexbox-vertical-centered">
-                        <Input
-                            value={this.state.name}
-                            placeholder="Name:"
-                            onChange={this.handleInputChange('name')} />
-                        <Input
-                            value={this.state.email}
-                            placeholder="Email:"
-                            onChange={this.handleInputChange('email')} />
-                        <Input
-                            value={this.state.phoneNumber}
-                            placeholder="Phone number:"
-                            onChange={this.handleInputChange('phoneNumber')} />
-                        <Select
-                            value={this.state.role}
-                            onChange={this.handleInputChange('role')}
-                            style={{
-                                width: "100%"
-                            }}
-                        >
-                            {this.props.roles.map(role =>
-                                <MenuItem key={role} value={role}>{role}</MenuItem>
-                            )}
-                        </Select>
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={this.handleCancel} color="primary">
-                        Cancel
-                     </Button>
-                    <Button
-                        onClick={this.handleOk}
-                        color="primary">
-                        Ok
-                     </Button>
-                </DialogActions>
-            </Dialog>
-        )
-    }
-}

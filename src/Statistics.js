@@ -255,7 +255,7 @@ class Statistics extends PureComponent {
                             data={this.state.activeBugsStatistics} />
                     </div>
                 </ProjectSettingsSection>
-                {this.state.minMaxBugsStatistics ?
+                {this.state.minMaxBugsStatistics && this.props.isUserAdmin ?
                     <ProjectSettingsSection sectionName="Min/max projects" verticalContent centered>
                         <div style={{
                             display: 'flex',
@@ -299,7 +299,8 @@ class Statistics extends PureComponent {
 
 export default connect(state => ({
     statuses: state.bugs.statuses,
-    currentProjectId: state.bugs.currentProjectId
+    currentProjectId: state.bugs.currentProjectId,
+    isUserAdmin: state.security.isAdmin
 }))(Statistics);
 
 const timeUnitsColors = {
