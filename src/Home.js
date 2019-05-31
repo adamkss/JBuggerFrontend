@@ -313,7 +313,7 @@ class ResponsiveDrawer extends React.Component {
                                 :
                                 null
                             }
-                            {this.props.isAdmin ?
+                            {this.props.isPM ?
                                 <ListItem button key="globalSettingsListItem" onClick={() => this.props.history.push("/globalSettings")}>
                                     <ListItemIcon> <SettingsIcon /></ListItemIcon>
                                     <ListItemText primary="Global settings" />
@@ -458,7 +458,7 @@ class ResponsiveDrawer extends React.Component {
                         exact
                         path={`${this.props.match.path}globalSettings`}
                         render={(props) => {
-                            if (!this.props.isAdmin)
+                            if (!this.props.isPM)
                                 return <Redirect to="/" />
                             else
                                 return <GlobalSettings />
@@ -521,6 +521,7 @@ const mapStateToProps = state => ({
     notAuthorizedMessage: state.bugs.notAuthorizedMessage,
     isDEV: state.security.isDev,
     isAdmin: state.security.isAdmin,
+    isPM: state.security.isPM,
     isTester: state.security.isTester,
     isPasswordChangeNeeded: state.security.isPasswordChangeNeeded
 })
